@@ -1,8 +1,7 @@
 import { createClient } from '@/utils/supabase/client';
-import { DatabaseSync } from 'node:sqlite';
 import { useState, useEffect } from 'react';
 import { redirect } from 'next/navigation'
-import { XOctagon } from 'lucide-react';
+
 
 
 export default function SideBar() {
