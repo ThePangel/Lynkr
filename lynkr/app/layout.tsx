@@ -1,3 +1,7 @@
+"use client"
+import Sidebar from "../components/sidebar";
+import './globals.css';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -6,9 +10,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <main>
-          {children}
-        </main>
+        <div className="flex">
+          <div className="w-20">
+            <Sidebar /> 
+          </div>
+
+          <main className="flex-1 ">
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   );
