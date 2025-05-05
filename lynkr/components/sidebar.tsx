@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/client';
 import { DatabaseSync } from 'node:sqlite';
 import { useState, useEffect } from 'react';
 import { redirect } from 'next/navigation'
+import { XOctagon } from 'lucide-react';
 
 
 export default function SideBar() {
@@ -26,12 +27,12 @@ export default function SideBar() {
             if (sessionData.user) {
                 
                 const userId = sessionData.user.id
-                console.log(userId  )
+                console.log(userId)
                 const { data } = await supabase
                     .from("group_assignments")
                     .select()
-                    //.eq("user_id", userId);
-                console.log(data)
+                    .eq("user_id", userId);
+                
 
                 if (data) {
                     await Promise.all(
@@ -46,11 +47,11 @@ export default function SideBar() {
                             }
                         })
                     )
-                }
+                }   
             }
 
 
-            console.log(finalGroups[0].name);
+            console.log(finalGroups);
             setGroups(finalGroups ?? []);
 
         };
@@ -61,16 +62,41 @@ export default function SideBar() {
     return <div >
 
 
-        <section className="h-screen max-w-20 bg-black">
-            {groups.map((group) => (
-
-                <div key={group.id} className='text-white'>{group.name}</div>
+        <section className="h-screen max-w-20 bg-black flex flex-col items-center">
+            {groups.map((group) => group.solo && (
+                
+                <div key={group.id} 
+                className='m-2 w-[3.5rem] h-[3.5rem] rounded-xl bg-inherit text-black flex items-center justify-center' style={{
+                    backgroundImage: group.avatar ? `url(${group.avatar})` : 'none',
+                    backgroundColor: group.avatar ? 'transparent' : '#FFF', 
+                    backgroundSize: "cover"
+                  }}>
+                    <p>
+                        {group.name}
+                    </p>
+                </div>
             ))
 
 
             }
 
+            <hr className='w-[3.5rem] border-3'/>
 
+            {groups.map((group) => !group.solo && (
+                
+                <div key={group.id} 
+                className='m-2 w-[3.5rem] h-[3.5rem] rounded-xl bg-inherit text-black flex items-center justify-center' style={{
+                    backgroundImage: group.avatar ? `url(${group.avatar})` : 'none',
+                    backgroundColor: group.avatar ? 'transparent' : '#FFF', 
+                    backgroundSize: "cover"
+                  }}>
+                    <p>
+                        {group.name}
+                    </p>
+                </div>
+            ))
+
+        }
         </section>
 
 
