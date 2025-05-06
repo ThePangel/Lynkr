@@ -5,12 +5,8 @@ import { redirect } from 'next/navigation'
 
 import { createClient } from '@/utils/supabase/server'
 
-export async function signup() {
-  
-  redirect('/signup')
-}
 
-export async function login(formData: FormData) {
+export async function signup(formData: FormData) {
   const supabase = await createClient()
 
   // type-casting here for convenience
@@ -20,13 +16,13 @@ export async function login(formData: FormData) {
     password: formData.get('password') as string,
   }
 
-  const { error } = await supabase.auth.signInWithPassword(data)
+  const { error } = await supabase.auth.signUp(data)
 
   if (error) {
+    console.log(error)
     redirect('/error')
   }
 
   revalidatePath('/', 'layout')
   redirect('/home')
 }
-

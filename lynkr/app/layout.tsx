@@ -1,5 +1,4 @@
-"use client"
-import Sidebar from "../components/sidebar";
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import './globals.css';
 
 export default function RootLayout({
@@ -10,15 +9,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="flex">
-          <div className="w-20">
-            <Sidebar /> 
-          </div>
-
-          <main className="flex-1 ">
-            {children}
-          </main>
-        </div>
+      <AppRouterCacheProvider>
+        <main >
+          {children}
+        </main>
+        </AppRouterCacheProvider>
       </body>
     </html>
   );
