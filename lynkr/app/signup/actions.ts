@@ -9,19 +9,39 @@ import { createClient } from '@/utils/supabase/server'
 export async function signup(formData: FormData) {
   const supabase = await createClient()
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
+  
+  
+  const info = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
+    
   }
 
-  const { error } = await supabase.auth.signUp(data)
 
-  if (error) {
+  let userId
+  const { error: AuthError } = await supabase.auth.signUp(info)
+  if (AuthError) {
+    console.log(AuthError)
+    return redirect('/error')
+  }
+  const { data, error } = await supabase.auth.getUser()
+  
+  if (error || !data) {
     console.log(error)
-    redirect('/error')
+    return redirect('/error')
   }
+  userId = data?.user?.id;
+  
+  const { error: UserError } = await supabase
+    .from('profiles')
+    .insert({ id: userId, username: formData.get('username') as string, avatar: null, created_at: new Date().toISOString()})
+
+  
+  if (UserError) {
+    console.log(UserError)
+    return redirect('/error')
+  }
+
 
   revalidatePath('/', 'layout')
   redirect('/home')

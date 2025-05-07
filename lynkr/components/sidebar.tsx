@@ -3,7 +3,7 @@ import { createClient } from '@/utils/supabase/client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { loggingOut } from './actions'
-import { LogOut } from 'lucide-react';
+import { LogOut, Plus } from 'lucide-react';
 import Tooltip from '@mui/material/Tooltip';
 
 
@@ -16,7 +16,7 @@ export default function SideBar() {
         const fetchGroups = async () => {
 
             const supabase = createClient();
-            
+
 
             let finalGroups: any[] = [];
             const { data, error } = await supabase.auth.getUser()
@@ -65,6 +65,14 @@ export default function SideBar() {
 
 
         <section className="h-screen max-w-20 bg-[#161616] flex flex-col items-center">
+
+            <div
+                className='m-2 w-[3.5rem] h-[3.5rem] rounded-xl bg-inherit text-white flex items-center justify-center border border-white'
+            >
+
+                <Plus strokeWidth={2.5} />
+
+            </div>
             {groups.map((group) => group.solo && (
 
                 <div key={group.id}
@@ -100,7 +108,7 @@ export default function SideBar() {
 
             }
             <Tooltip title="LogOut">
-                <LogOut className="cursor-pointer mt-auto pb-5 size-10 text-white"onClick={loggingOut} />
+                <LogOut className="cursor-pointer mt-auto pb-5 size-10 text-white" onClick={loggingOut} />
             </Tooltip>
         </section>
 
