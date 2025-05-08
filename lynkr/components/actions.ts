@@ -123,3 +123,26 @@ export async function newGroup(formData: FormData) {
   revalidatePath('/', 'layout')
   redirect('/home')
 }
+
+export async function joinGroup(formData: FormData) {
+  const supabase = await createClient()
+  let userId
+  let groupId = Number(formData.get('code') as string)
+  const { data: userData, error } = await supabase.auth.getUser()
+  if (error || !userData) {
+    console.log("User")
+    console.log(error)
+    return redirect('/error')
+  }
+  userId = userData?.user?.id;
+  
+  const {  error: GroupError } = await supabase
+  .from('group_assignments')  
+  .insert({ group_id: groupId, user_id: userId, created_at: new Date().toISOString()})
+  if ( GroupError) {
+    console.log("Group")
+    console.log(GroupError)
+    return redirect('/error')
+  }
+  return redirect('/home');
+}
