@@ -1,5 +1,5 @@
-"use client"
-import Sidebar from "../../components/sidebar";
+import SideBar from "@/components/sidebar";
+import UserIcon from "@/components/userIcon";
 import '../globals.css';
 
 
@@ -13,8 +13,9 @@ export default function RootLayout({
       <body>
         <div className="flex">
           <div className="w-20">
-            <Sidebar /> 
+            <SideBar /> 
           </div>
+          <UserIcon />
 
           <main className="flex-1 ">
             {children}
