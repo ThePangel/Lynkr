@@ -36,10 +36,10 @@ function ChildModal() {
                 
                 <label htmlFor="code" className='text-white font-semibold'>Code:</label>
                 
-                <input id="code" name="code" type="text" required className='m-3 rounded-md bg-black outline-double outline-offset-2 outline-purple-900 w-[20rem] h-[2rem] text-white  font-mono'/>
+                <input id="code" name="code" type="number" required className='m-3 rounded-md bg-black outline-double outline-offset-2 outline-purple-900 w-[20rem] h-[2rem] text-white  font-mono'/>
 
                 <button className="mt-7 mx-2 focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900" 
-                formAction={joinGroup} >
+                type="submit">
                     Join</button>  
               
               </form>
@@ -63,7 +63,7 @@ export default function NewGroupModal({ handleClose }: NewGroupModalProps) {
     
               <hr className='w-[28rem] border-3 m-3' />
     
-              <form className='flex flex-col p-5 '>
+              <form action={newGroup}className='flex flex-col p-5 '>
                 
                 <label htmlFor="name" className='text-white font-semibold'>Name:</label>
                 
@@ -71,10 +71,10 @@ export default function NewGroupModal({ handleClose }: NewGroupModalProps) {
                 
                 <label className='text-white font-semibold' htmlFor="password">Solo:</label>
                 
-                <input id="solo" name="solo" type="checkbox" required className='m-3 rounded-md bg-black  w-[25rem] h-[2rem] text-white'/>
+                <input id="solo" name="solo" type="checkbox" className='m-3 rounded-md bg-black  w-[25rem] h-[2rem] text-white'/>
                 
                 <button className="mt-12 mx-2 focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900" 
-                formAction={newGroup} onClick={handleClose}>
+                type="submit">
                     Create</button>
                 
                 

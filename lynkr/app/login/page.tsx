@@ -13,7 +13,7 @@
 
           <hr className='w-[28rem] border-3 m-3' />
 
-          <form className='flex flex-col p-5 '>
+          <form action={login} className='flex flex-col p-5 '>
             
             <label htmlFor="email" className='text-white font-semibold'>Email:</label>
             
@@ -23,11 +23,11 @@
             
             <input id="password" name="password" type="password" required className='m-3 rounded-md bg-black outline-double outline-offset-2 outline-purple-900 w-[25rem] h-[2rem] text-white'/>
             
-            <button className="mt-12 mx-2 focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900" formAction={login}>Log in</button>
+            <button type="submit" className="mt-12 mx-2 focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900" >Log in</button>
             
             
           </form>
-          <button className="underline text-white font-semibold" onClick={signup}>Sign up</button>
+          <button onClick={signup} className="underline text-white font-semibold" >Sign up</button>
         
         </div>
       
