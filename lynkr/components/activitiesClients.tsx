@@ -34,7 +34,7 @@ export default function Activities() {
         if (diff <= 0) return "00:00:00";
 
         const totalSeconds = Math.floor(diff / 1000);
-        const days = String(Math.floor(totalSeconds / 86400)).padStart(2, "0"); 
+        const days = String(Math.floor(totalSeconds / 86400)).padStart(2, "0");
         const hours = String(Math.floor((totalSeconds % 86400) / 3600)).padStart(2, "0");
         const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
         const seconds = String(totalSeconds % 60).padStart(2, "0");
@@ -76,7 +76,9 @@ export default function Activities() {
                     {card.description}
                 </h3>
                 <h2 className="mt-5 text-white font-mono text-2xl">
-                    {new Date(card.time).toLocaleString()}
+                    {new Date(card.time).toLocaleString(undefined, {
+                        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                    })}
                 </h2>
                 <h2 className="mt-5 text-white font-mono text-3xl">
                     {countdowns[card.title] ?? "Loading..."}

@@ -168,23 +168,21 @@ export async function GetContent(id: number) {
 
 export async function addActivity(formData: FormData) {
   const supabase = await createClient()
-  
-  const input = formData.get('datetime') as string
-  
-  console.log("JODER")
-  console.log(formData.get('groupId'))
+  console.log(formData.get('datetime') as string)
+  const input = formData.get('datetime') as string;
   const localDate = new Date(input);
   const tzOffsetMinutes = localDate.getTimezoneOffset();
-  const offsetHours = Math.floor(Math.abs(tzOffsetMinutes) / 60);
-  const offsetMinutes = Math.abs(tzOffsetMinutes) % 60;
-  const sign = tzOffsetMinutes <= 0 ? '+' : '-';
-  const tzString = sign +
-  String(offsetHours).padStart(2, '0') + ':' +
-  String(offsetMinutes).padStart(2, '0');
+  console.log(localDate.getTimezoneOffset())
+  const sign = tzOffsetMinutes < 0 ? '+' : '-';
+  const offsetHours = Math.abs(Math.floor(tzOffsetMinutes / 60));
+  const offsetMinutes = Math.abs(tzOffsetMinutes % 60);
+  const tzString = sign + String(offsetHours).padStart(2, '0') + ':' + String(offsetMinutes).padStart(2, '0');
 
   const isoLocal = localDate.toISOString().slice(0, -1);
-  const finalTime = isoLocal + tzString;
-
+  console.log(isoLocal)
+const finalTime = input + tzString;
+console.log(finalTime)
+  
   const content = await GetContent(parseInt(formData.get('groupId') as string))
 
   content[0]?.content?.cards.push({
@@ -198,12 +196,12 @@ export async function addActivity(formData: FormData) {
     .update({ content: content[0]?.content })
     .eq("group_id", parseInt(formData.get('groupId') as string))
     .eq("type", "card")
-  if(error){
+  if (error) {
 
     console.log(error)
     return redirect('/error')
 
   }
-  console.log(content[0]?.content?.cards)
+
   return redirect('/home')
 }

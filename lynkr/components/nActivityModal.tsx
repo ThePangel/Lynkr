@@ -25,7 +25,7 @@ export default function NewActivityModal({ handleClose }: NewGroupModalProps) {
             <form action={addActivity} className='flex flex-col p-5 '>
 
             <input type="hidden" name="groupId" value={sharedValue} />
-            
+
             <label htmlFor="name" className='text-white font-semibold'>Name:</label>
 
             <input id="name" name="name" type="text" required className='m-3 rounded-md bg-black outline-double outline-offset-2 outline-purple-900 w-[25rem] h-[2rem] text-white  font-mono' />
@@ -36,7 +36,7 @@ export default function NewActivityModal({ handleClose }: NewGroupModalProps) {
 
             <label className='text-white font-semibold' htmlFor="password">Date:</label>
 
-            <input id="datetime" name="datetime" type="datetime-local" required className='m-3 rounded-md bg-black  w-[25rem] h-[2rem] text-white' />
+            <input onKeyDown={(e) => e.preventDefault()} id="datetime" name="datetime" type="datetime-local" required className='m-3 rounded-md bg-black  w-[25rem] h-[2rem] text-white' />
 
             <button className="mt-12 mx-2 focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
                 type="submit">
