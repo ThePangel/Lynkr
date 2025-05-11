@@ -25,7 +25,8 @@
     "prettier": "^3.3.3",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "react-indiana-drag-scroll": "^2.2.1"
+    "react-indiana-drag-scroll": "^2.2.1",
+    "sharp": "^0.34.1"
   },
   "devDependencies": {
     "@types/node": "22.10.2",

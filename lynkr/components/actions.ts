@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
+import sharp from 'sharp';
 
 
 
@@ -36,11 +37,11 @@ export async function avatar() {
     .select()
     .eq("id", userId);
   if (error || !data) {
-    console.log(error)
+    console.log(error)  
     return redirect('/error')
   }
-
-  return (data[0].avatar)
+  
+  return (JSON.parse(data[0].avatar).publicUrl)
 
 }
 
@@ -168,21 +169,18 @@ export async function GetContent(id: number) {
 
 export async function addActivity(formData: FormData) {
   const supabase = await createClient()
-  console.log(formData.get('datetime') as string)
+
+
   const input = formData.get('datetime') as string;
   const localDate = new Date(input);
   const tzOffsetMinutes = localDate.getTimezoneOffset();
-  console.log(localDate.getTimezoneOffset())
   const sign = tzOffsetMinutes < 0 ? '+' : '-';
   const offsetHours = Math.abs(Math.floor(tzOffsetMinutes / 60));
   const offsetMinutes = Math.abs(tzOffsetMinutes % 60);
   const tzString = sign + String(offsetHours).padStart(2, '0') + ':' + String(offsetMinutes).padStart(2, '0');
+  const finalTime = input + tzString;
 
-  const isoLocal = localDate.toISOString().slice(0, -1);
-  console.log(isoLocal)
-const finalTime = input + tzString;
-console.log(finalTime)
-  
+
   const content = await GetContent(parseInt(formData.get('groupId') as string))
 
   content[0]?.content?.cards.push({
@@ -205,3 +203,80 @@ console.log(finalTime)
 
   return redirect('/home')
 }
+
+export async function updateUser(formData: FormData) {
+  const supabase = await createClient();
+
+  const avatar = formData.get('avatar');
+
+  let userId
+  const { data: userData, error } = await supabase.auth.getUser()
+
+  if (error || !userData) {
+    console.log(error)
+    return redirect('/error')
+  }
+  userId = userData?.user?.id;
+
+  if (
+    (avatar instanceof File &&
+    (avatar.type === 'image/jpeg' || avatar.type === 'image/png')) 
+    && formData.has('name')
+  ) {
+    
+    const buffer = Buffer.from(await avatar.arrayBuffer());
+
+  
+    const resizedBuffer = await sharp(buffer)
+    .resize(250, 250)
+    .png()
+    .toBuffer();
+    
+    const { error: imgError } = await supabase.storage.from('avatars').update(`${userId}.png`, resizedBuffer, { upsert: true });
+    if(imgError){
+      console.log("gang")
+      console.log(imgError)
+      return redirect('/error')
+
+    }
+    return redirect('/home');
+    
+  } else if(formData.has('name') && !formData.has('avatar')) {
+
+    const { error } = await supabase.from('profiles').update({ username: formData.get("name") }).eq('id', userId)
+    if(error) {
+      console.log(error)
+      return redirect('/error')
+    }
+    return redirect('/home');
+
+  } else if(avatar instanceof File) {
+    
+    
+    const buffer = Buffer.from(await avatar.arrayBuffer());
+
+  
+    const resizedBuffer = await sharp(buffer)
+    .resize(250, 250)
+    .png()
+    .toBuffer();
+    
+    
+    const { error: imgError } = await supabase.storage.from('avatars').update(`${userId}.png`, resizedBuffer, { upsert: true });
+    if(imgError){
+      console.log(imgError)
+      return redirect('/error')
+    }
+    
+
+    const { error } = await supabase.from('profiles').update({ username: formData.get("name") }).eq('id', userId)
+    if(error) {
+       
+      console.log(error)
+      return redirect('/error')
+    }
+    return redirect('/home');
+  }
+
+  return redirect('/home');
+  }

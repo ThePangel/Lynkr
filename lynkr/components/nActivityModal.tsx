@@ -3,17 +3,15 @@
 import { useShared } from "./contentProvider";
 import { addActivity } from "./actions";
 
-interface NewGroupModalProps {
-    handleClose: () => void;
-}
 
-export default function NewActivityModal({ handleClose }: NewGroupModalProps) {
+
+export default function NewActivityModal() {
 
       const { sharedValue } = useShared();
       console.log("ganggang")
       console.log(sharedValue)
     
-    return <div className='flex flex-col items-center justify-start w-[30rem] h-[30rem] rounded-xl absolute top-[7rem] left-[33rem]' style={{
+    return <div className='flex flex-col items-center justify-start w-[30rem] h-[35rem] rounded-xl absolute top-[10rem] left-[45rem]' style={{
         backgroundColor: '#161616',
         filter: 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.4))'
     }}>

@@ -1,6 +1,6 @@
 "use client"
 
-import { LogOut, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import Tooltip from '@mui/material/Tooltip';
 import Modal from '@mui/material/Modal';
 import NewGroupModal from './nGroupModal';
@@ -38,7 +38,7 @@ export default function SideBarClient({ groups }: { groups: any[] }) {
                 aria-labelledby="Create-Group"
                 aria-describedby="Used-for-creating-groups ">
                 
-                <NewGroupModal handleClose={handleClose} />
+                <NewGroupModal />
 
                 </Modal>
 
@@ -90,9 +90,7 @@ export default function SideBarClient({ groups }: { groups: any[] }) {
         ))
 
         }
-        <Tooltip title="LogOut">
-            <LogOut className="cursor-pointer mt-auto pb-5 size-10 text-white" onClick={loggingOut} />
-        </Tooltip>
+        
     </section>
 
 

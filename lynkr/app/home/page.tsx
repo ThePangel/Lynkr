@@ -24,7 +24,7 @@ export default function Home() {
             aria-labelledby="Create-Group"
             aria-describedby="Used-for-creating-groups ">
 
-            <NewActivityModal handleClose={handleClose} />
+            <NewActivityModal />
 
           </Modal>
 

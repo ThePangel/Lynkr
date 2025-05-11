@@ -23,7 +23,7 @@ function ChildModal() {
         aria-labelledby="child-modal-title"
         aria-describedby="child-modal-description"
       >
-        <div className='flex flex-col items-center justify-start w-[25rem] h-[25rem] rounded-xl absolute top-[10rem] left-[35.4rem]'style={{ 
+        <div className='flex flex-col items-center justify-start w-[25rem] h-[25rem] rounded-xl absolute top-[12rem] left-[47.5rem]'style={{ 
                 backgroundColor: '#161616',
                  
               }}>
@@ -52,9 +52,9 @@ function ChildModal() {
 }
 
 
-export default function NewGroupModal({ handleClose }: NewGroupModalProps) {
+export default function NewGroupModal() {
 
-    return <div className='flex flex-col items-center justify-start w-[30rem] h-[30rem] rounded-xl absolute top-[7rem] left-[33rem]'style={{ 
+    return <div className='flex flex-col items-center justify-start w-[30rem] h-[30rem] rounded-xl absolute top-[10rem] left-[45rem]'style={{ 
                 backgroundColor: '#161616',
                 filter: 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.4))' 
               }}>
