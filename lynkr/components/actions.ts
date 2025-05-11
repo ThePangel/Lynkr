@@ -40,7 +40,7 @@ export async function avatar() {
     console.log(error)  
     return redirect('/error')
   }
-  
+  console.log(JSON.parse(data[0].avatar).publicUrl)
   return (JSON.parse(data[0].avatar).publicUrl)
 
 }
@@ -208,6 +208,9 @@ export async function updateUser(formData: FormData) {
   const supabase = await createClient();
 
   const avatar = formData.get('avatar');
+  console.log(avatar)
+  console.log(formData.has('name'))
+  console.log(formData.has('avatar'))
 
   let userId
   const { data: userData, error } = await supabase.auth.getUser()
@@ -232,25 +235,38 @@ export async function updateUser(formData: FormData) {
     .png()
     .toBuffer();
     
-    const { error: imgError } = await supabase.storage.from('avatars').update(`${userId}.png`, resizedBuffer, { upsert: true });
+    const { error: imgError } = await supabase.storage.from('avatars').update(`${userId}.png?t=${Date.now()}`, resizedBuffer, { upsert: true });
     if(imgError){
       console.log("gang")
       console.log(imgError)
       return redirect('/error')
 
     }
-    return redirect('/home');
-    
-  } else if(formData.has('name') && !formData.has('avatar')) {
+    const {data, error: userError} = await supabase.from("profiles").select().eq("id", userId)
+    if(userError){
+      console.log(userError)
+      return redirect("/error")
 
+    }
+    const { data: urlData } = await supabase.storage.from('avatars').getPublicUrl(`${userId}.png?t=${data[0].created_at}`)
+
+
+
+    const { error } = await supabase.from('profiles').update({ avatar: urlData, created_at: new Date(Date.now()).toISOString() }).eq('id', userId)
+    if(error) {
+      console.log("error")
+      console.log(error)
+      return redirect('/error')
+    }
+  } else if(formData.has('name') && !formData.has('avatar')) {
+    console.log("gang")
     const { error } = await supabase.from('profiles').update({ username: formData.get("name") }).eq('id', userId)
     if(error) {
       console.log(error)
       return redirect('/error')
     }
-    return redirect('/home');
 
-  } else if(avatar instanceof File) {
+  } else if(!formData.has('name') && avatar instanceof File) {
     
     
     const buffer = Buffer.from(await avatar.arrayBuffer());
@@ -267,15 +283,20 @@ export async function updateUser(formData: FormData) {
       console.log(imgError)
       return redirect('/error')
     }
-    
+    const {data, error: userError} = await supabase.from("profiles").select().eq("id", userId)
+    if(userError){
+      console.log(userError)
+      return redirect("/error")
 
-    const { error } = await supabase.from('profiles').update({ username: formData.get("name") }).eq('id', userId)
+    }
+    const { data: urlData } = await supabase.storage.from('avatars').getPublicUrl(`${userId}.png?t=${data[0].created_at}`)
+
+    const { error } = await supabase.from('profiles').update({ avatar: urlData, username: formData.get("name") }).eq('id', userId)
     if(error) {
        
       console.log(error)
       return redirect('/error')
     }
-    return redirect('/home');
   }
 
   return redirect('/home');
