@@ -5,7 +5,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Modal from '@mui/material/Modal';
 import NewGroupModal from './nGroupModal';
 import { useState } from 'react';
-import { loggingOut } from './actions'
+import ScrollContainer from 'react-indiana-drag-scroll'
 import { useShared } from './contentProvider';
 
 export default function SideBarClient({ groups }: { groups: any[] }) {
@@ -25,10 +25,10 @@ export default function SideBarClient({ groups }: { groups: any[] }) {
         return <div >
 
 
-        <section className="h-screen max-w-20 bg-[#161616] flex flex-col items-center">
+        <ScrollContainer horizontal={false} className="h-screen max-w-20 bg-[#161616] flex flex-col items-center">
 
             <div
-                className='m-2 w-[3.5rem] h-[3.5rem] rounded-xl bg-inherit text-white flex items-center justify-center border border-white'
+                className='m-2 min-w-[3.5rem] min-h-[3.5rem] rounded-xl bg-inherit text-white flex items-center justify-center border border-white'
             >
 
                 <Plus strokeWidth={2.5} onClick={handleOpen} />
@@ -91,7 +91,7 @@ export default function SideBarClient({ groups }: { groups: any[] }) {
 
         }
         
-    </section>
+    </ScrollContainer>
 
 
 </div>

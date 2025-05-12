@@ -1,19 +1,47 @@
 import { joinGroup, newGroup } from "./actions";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Modal } from "@mui/material";
+
+
 interface NewGroupModalProps {
     handleClose: () => void;
 }
 
 function ChildModal() {
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<any>()
   const handleOpen = () => {
     setOpen(true);
   };
   const handleClose = () => {
     setOpen(false);
   };
-
+  
+  const formRef = useRef<HTMLFormElement>(null);
+  const handleSubmit = async (e: React.FormEvent) => {
+          e.preventDefault();
+          console.log("test")
+          const form = formRef.current;
+          if (!form) return;
+  
+          
+          let formData = new FormData(form);
+         
+          
+          const message = await joinGroup(formData)
+          console.log(message)
+          if(typeof message === "string") {
+            setError(message)
+            
+          } else if (typeof message === "object" && message?.code === "23503") {
+            setError("Group does not exist"!)
+            console.log(error)
+          }
+          
+          
+  
+  
+      };
   return (
     <>
       <button className="underline text-white font-semibold" onClick={handleOpen}>Join with code</button>
@@ -32,7 +60,7 @@ function ChildModal() {
     
               <hr className='w-[23rem] border-3 m-3' />
     
-              <form className='flex flex-col p-5 ' action={(formData) => { handleClose(); joinGroup(formData); }}>
+              <form className='flex flex-col p-5 ' ref={formRef} onSubmit={handleSubmit}>
                 
                 <label htmlFor="code" className='text-white font-semibold'>Code:</label>
                 
@@ -41,6 +69,7 @@ function ChildModal() {
                 <button className="mt-7 mx-2 focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900" 
                 type="submit">
                     Join</button>  
+                  <p className='text-red-600'>{error}</p>
               
               </form>
               

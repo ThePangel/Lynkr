@@ -14,11 +14,11 @@ export async function loggingOut() {
   const { error } = await supabase.auth.signOut()
 
   if (error) {
-    redirect('/error')
+    return redirect('/error')
   }
 
   revalidatePath('/', 'layout')
-  redirect('/home')
+  return redirect('/home')
 }
 
 export async function avatar() {
@@ -131,21 +131,27 @@ export async function joinGroup(formData: FormData) {
   let groupId = Number(formData.get('code') as string)
   const { data: userData, error } = await supabase.auth.getUser()
   if (error || !userData) {
-    console.log("User")
     console.log(error)
-    return redirect('/error')
+    return error
   }
   userId = userData?.user?.id;
+  const { error: checkError } = await supabase
+    .from('group_assignments')
+    .select()
+    .eq("group_id", groupId)
+    .eq("user_id", userId)
+  if(!checkError){
+    return "Already in group!"
 
+  }
   const { error: GroupError } = await supabase
     .from('group_assignments')
     .insert({ group_id: groupId, user_id: userId, created_at: new Date().toISOString() })
   if (GroupError) {
-    console.log("Group")
     console.log(GroupError)
-    return redirect('/error')
+    return GroupError 
   }
-  return redirect('/home');
+  return "Done!"
 }
 
 export async function GetContent(id: number) {

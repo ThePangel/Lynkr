@@ -21,8 +21,8 @@ export async function signup(formData: FormData) {
   let userId
   const { error: AuthError } = await supabase.auth.signUp(info)
   if (AuthError) {
-    console.log(AuthError)
-    return redirect('/error')
+    console.log(AuthError.code)
+    return AuthError.code
   }
   const { data, error } = await supabase.auth.getUser()
   
@@ -38,11 +38,10 @@ export async function signup(formData: FormData) {
 
   
   if (UserError) {
-    console.log(UserError)
-    return redirect('/error')
+    return UserError
   }
 
 
   revalidatePath('/', 'layout')
-  redirect('/home')
+  return redirect('/home')
 }

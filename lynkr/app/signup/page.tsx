@@ -1,5 +1,29 @@
+'use client'
+
+import { useRef, useState } from 'react';
 import { signup } from './actions'
 export default function LoginPage() {
+  const [error, setError] = useState<string>()
+  
+  const formRef = useRef<HTMLFormElement>(null);
+    const handleSubmit = async (e: React.FormEvent) => {
+            e.preventDefault();
+            console.log("test")
+            const form = formRef.current;
+            if (!form) return;
+    
+            
+            let formData = new FormData(form);
+           
+            console.log("test")
+            const message = await signup(formData)
+            console.log(message)
+            if( message === "weak_password") {
+              setError("Password must be at least 6 characters long")
+              
+            } 
+    
+        };
   return (
     
     <div className='flex items-center justify-center h-screen bg-[#000]'>
@@ -13,7 +37,7 @@ export default function LoginPage() {
 
         <hr className='w-[28rem] border-3 m-3' />
 
-        <form action={signup} className='flex flex-col p-5 '>
+        <form onSubmit={handleSubmit} ref={formRef} className='flex flex-col p-5 '>
           
         <label htmlFor="username" className='text-white font-semibold'>Username:</label>
           
@@ -33,7 +57,8 @@ export default function LoginPage() {
           className="mt-12 mx-2 focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900" 
           type="submit">
             Sign Up
-          </button>
+          </button>  
+          <p className='text-red-600'>{ error }</p>
           
           
         </form>
