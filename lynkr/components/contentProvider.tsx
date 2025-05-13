@@ -15,7 +15,7 @@ interface SharedProviderProps {
 }
 
 export function ContentProvider({ children }: SharedProviderProps) {
-  const [sharedValue, setSharedValue] = useState<number>(0);
+  const [sharedValue, setSharedValue] = useState<number>(-1);
     
   return (
     <SharedContext.Provider value={{ sharedValue, setSharedValue }}>

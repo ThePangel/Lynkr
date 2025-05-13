@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
+import { cookies } from 'next/headers'
 import sharp from 'sharp';
 
 
@@ -307,3 +308,15 @@ export async function updateUser(formData: FormData) {
 
   return redirect('/home');
   }
+
+export async function saveGroup(group: any) {
+  const cookieStore = await cookies()
+  
+  if(typeof group === 'boolean') {
+    return cookieStore.get('group')
+  } else if(group !== cookieStore.get('group')) {
+    cookieStore.set('group', group)
+    return true
+  } 
+  
+}

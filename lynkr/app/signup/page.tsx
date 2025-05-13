@@ -15,9 +15,9 @@ export default function LoginPage() {
             
             let formData = new FormData(form);
            
-            console.log("test")
+            
             const message = await signup(formData)
-            console.log(message)
+            
             if( message === "weak_password") {
               setError("Password must be at least 6 characters long")
               
