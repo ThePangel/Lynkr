@@ -57,19 +57,19 @@ export default function Activities() {
     }, [content]);
 
     return <ScrollContainer vertical={false}
-        className=" scroll-container flex flex-row items-center  justify-items-start h-[27rem]  bg-[#161616
+        className=" scroll-container flex flex-row items-center  justify-items-start h-[20rem]  bg-[#161616
         type: 'card',] overflow-x-auto overflow-y-hidden no-scrollbar"
         style={{ width: 'calc(100vw - 5rem)' }} >
         {content[0]?.content?.cards.map((card: any) => !card.solo && (
 
 
             <div key={card.title}
-                className='flex flex-col items-start w-[20rem] h-[25rem] rounded-xl bg-[#464646] p-5 m-5 flex-shrink-0' style={{
+                className='flex flex-col items-start w-[20rem] h-[19rem] rounded-xl bg-[#464646] p-5 m-5 flex-shrink-0' style={{
                     backgroundColor: '#161616',
                     filter: 'drop-shadow(0 0 5px rgba(255, 255, 255, 0.4))'
                 }}
             >
-                <h1 className="text-white font-mono text-5xl">
+                <h1 className="text-white font-mono text-4xl">
                     {card.title}
                 </h1>
                 <h3 className="mt-5 text-white font-mono text-2xl">

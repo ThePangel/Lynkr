@@ -20,9 +20,13 @@ export default function GSettingsModal() {
         if (fileInput.files && fileInput.files.length > 0) {
             const file = fileInput.files[0];
             formData.append('avatar', file);
+        } 
+        if ((new FormData(form).get('name') as string).length > 0) {
+            formData.append('name', new FormData(form).get('name') as string)
         }
 
-        formData.append('name', new FormData(form).get('name') as string)
+
+       
         const name = formData.get('name')
         const avatar = formData.get('avatar')
         console.log(avatar)

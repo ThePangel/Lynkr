@@ -72,6 +72,7 @@ export default function SideBarClient() {
 
                     <div className='flex flex-row items-center'>
                         {sharedValue === group.id ? <div className='h-10 w-2 bg-white rounded-xl -scale-x-75' /> : null}
+                        <Tooltip title={group.name}>
                         <div key={group.id}
                             className='m-2 w-[3.5rem] h-[3.5rem] rounded-xl bg-inherit text-black flex items-center justify-center' style={{
                                 backgroundImage: group.avatar ? `url(${JSON.parse(group.avatar).publicUrl})` : 'none',
@@ -79,12 +80,10 @@ export default function SideBarClient() {
                                 backgroundSize: "cover"
                             }}
                             onClick={() => setSharedValue(group.id)}>
-                            <p>
-                                {group.name}
-                            </p>
+                            
 
                         </div>
-
+                        </Tooltip>
                     </div>
 
                 ))
@@ -98,6 +97,7 @@ export default function SideBarClient() {
             {groups?.map((group) => !group.solo && (
                 <div className='flex flex-row items-center'>
                     {sharedValue === group.id ? <div className='h-10 w-2 bg-white rounded-xl -scale-x-75' /> : null}
+                    <Tooltip title={group.name}>
                     <div key={group.id}
                         className='m-2 w-[3.5rem] h-[3.5rem] rounded-xl bg-inherit text-black flex items-center justify-center'
                         style={{
@@ -106,10 +106,9 @@ export default function SideBarClient() {
                             backgroundSize: "cover"
                         }}
                         onClick={() => setSharedValue(group.id)}>
-                        <p>
-                            {group.name}
-                        </p>
+                        
                     </div>
+                    </Tooltip>
                 </div>
             ))
 

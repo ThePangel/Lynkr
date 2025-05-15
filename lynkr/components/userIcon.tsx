@@ -33,8 +33,11 @@ function ChildModal() {
             const file = fileInput.files[0];
             formData.append('avatar', file);
         }
+        if ((new FormData(form).get('name') as string).length > 0) {
+            formData.append('name', new FormData(form).get('name') as string)
+        }
 
-        formData.append('name', new FormData(form).get('name') as string)
+        
         const name = formData.get('name')
         const avatar = formData.get('avatar')
         console.log(avatar)
