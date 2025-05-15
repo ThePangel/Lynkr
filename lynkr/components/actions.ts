@@ -11,8 +11,9 @@ import { Console } from 'console'
 
 
 export async function loggingOut() {
-  const supabase = await createClient()
-
+  const supabase = await createClient();
+  const cookieStore = await cookies()
+  cookieStore.set('group', "00000000-0000-0000-0000-000000000000", {secure: true})
   const { error } = await supabase.auth.signOut()
 
   if (error) {
