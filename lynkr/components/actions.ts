@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { cookies } from 'next/headers'
 import sharp from 'sharp';
+import { Console } from 'console'
 
 
 
@@ -70,7 +71,7 @@ export async function fetchGroups() {
 
 
     if (data) {
-
+      
       await Promise.all(data.map(async (groups) => {
         let groupId = groups.group_id;
         const { data: group } = await supabase
@@ -86,7 +87,7 @@ export async function fetchGroups() {
     }
   }
 
-
+  
   return (finalGroups)
 
 }
@@ -129,19 +130,20 @@ export async function newGroup(formData: FormData) {
 export async function joinGroup(formData: FormData) {
   const supabase = await createClient()
   let userId
-  let groupId = Number(formData.get('code') as string)
+  let groupId = formData.get('code') as string
+  
   const { data: userData, error } = await supabase.auth.getUser()
   if (error || !userData) {
     console.log(error)
     return error
   }
   userId = userData?.user?.id;
-  const { error: checkError } = await supabase
+  const { data, error: checkError } = await supabase
     .from('group_assignments')
     .select()
     .eq("group_id", groupId)
     .eq("user_id", userId)
-  if(!checkError){
+  if(!checkError && data && data.length > 0){
     return "Already in group!"
 
   }
@@ -311,12 +313,15 @@ export async function updateUser(formData: FormData) {
 
 export async function saveGroup(group: any) {
   const cookieStore = await cookies()
+  cookieStore.set('group', group, {secure: true})
+    
   
-  if(typeof group === 'boolean') {
-    return cookieStore.get('group')
-  } else if(group !== cookieStore.get('group')) {
-    cookieStore.set('group', group)
-    return true
-  } 
+}
+
+export async function readGroup() {
+  const cookieStore = await cookies()
+  
+  return cookieStore.get('group')
+  
   
 }

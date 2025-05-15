@@ -6,21 +6,31 @@ import NewGroupModal from './nGroupModal';
 import { useState, useEffect } from 'react';
 import ScrollContainer from 'react-indiana-drag-scroll'
 import { useShared } from './contentProvider';
-import { saveGroup } from './actions';
+import { fetchGroups, readGroup, saveGroup } from './actions';
 
 
-export default function SideBarClient({ groups }: { groups: any[] }) {
+export default function SideBarClient() {
     const { setSharedValue, sharedValue } = useShared();
     const [open, setOpen] = useState(false);
+    const [groups, setGroups] = useState<any[]>()
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
     
-    
+     useEffect(() => {
+            const fGroups = async () => {
+                const values = await fetchGroups()
+                setGroups(values)
+                console.log(groups)
+            }
+            fGroups()
+            console.log(groups)
+    }, []) 
     useEffect(() => {
         console.log(sharedValue)
         const save = async () => {
-            const value = await saveGroup(true)
-            if(typeof value !== 'boolean' && sharedValue === -1 && value) {
+            
+            if(sharedValue === "00000000-0000-0000-0000-000000000000") {
+                const value = await readGroup()
                 setSharedValue(value?.value)
                 console.log(sharedValue)
             } 

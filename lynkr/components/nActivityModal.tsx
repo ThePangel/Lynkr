@@ -11,7 +11,8 @@ export default function NewActivityModal() {
       console.log("ganggang")
       console.log(sharedValue)
     
-    return <div className='flex flex-col items-center justify-start w-[30rem] h-[35rem] rounded-xl absolute top-[10rem] left-[45rem]' style={{
+    return <div className="flex items-center justify-center h-screen w-screen pointer-events-none">
+        <div className='flex flex-col items-center justify-start w-[30rem] h-[35rem] rounded-xl pointer-events-auto' style={{
         backgroundColor: '#161616',
         filter: 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.4))'
     }}>
@@ -45,5 +46,5 @@ export default function NewActivityModal() {
 
 
     </div>
-
+    </div>
 }

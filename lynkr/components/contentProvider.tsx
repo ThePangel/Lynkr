@@ -1,4 +1,5 @@
 'use client';
+
 import { createContext, useContext, useState } from 'react';
 import { ReactNode } from 'react';
 
@@ -15,7 +16,8 @@ interface SharedProviderProps {
 }
 
 export function ContentProvider({ children }: SharedProviderProps) {
-  const [sharedValue, setSharedValue] = useState<number>(-1);
+  const [sharedValue, setSharedValue] = useState<string>("00000000-0000-0000-0000-000000000000")
+
     
   return (
     <SharedContext.Provider value={{ sharedValue, setSharedValue }}>

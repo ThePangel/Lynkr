@@ -1,7 +1,8 @@
-import SideBar from "@/components/sidebar";
+
 import UserIcon from "@/components/userIcon";
 import '../globals.css';
 import { ContentProvider } from "@/components/contentProvider";
+import SideBarClient from "@/components/sideBarClient";
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -16,7 +17,7 @@ export default function RootLayout({
           <div className="flex">
             <div className="w-20">
              
-              <SideBar /> 
+            <SideBarClient />
             </div>
             <UserIcon />
 
