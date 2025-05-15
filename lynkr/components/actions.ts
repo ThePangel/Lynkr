@@ -13,7 +13,7 @@ import { Console } from 'console'
 export async function loggingOut() {
   const supabase = await createClient();
   const cookieStore = await cookies()
-  cookieStore.set('group', "00000000-0000-0000-0000-000000000000", {secure: true})
+  cookieStore.set('group', "00000000-0000-0000-0000-000000000000", { secure: true })
   const { error } = await supabase.auth.signOut()
 
   if (error) {
@@ -40,7 +40,7 @@ export async function avatar() {
     .select()
     .eq("id", userId);
   if (error || !data) {
-    console.log(error)  
+    console.log(error)
     return redirect('/error')
   }
   console.log(JSON.parse(data[0].avatar).publicUrl)
@@ -72,7 +72,7 @@ export async function fetchGroups() {
 
 
     if (data) {
-      
+
       await Promise.all(data.map(async (groups) => {
         let groupId = groups.group_id;
         const { data: group } = await supabase
@@ -88,7 +88,7 @@ export async function fetchGroups() {
     }
   }
 
-  
+
   return (finalGroups)
 
 }
@@ -123,7 +123,13 @@ export async function newGroup(formData: FormData) {
     console.log(asignmentError)
     return redirect('/error')
   }
-
+  const { error: checkError } = await supabase
+    .from("group_content")
+    .insert({ group_id: data?.id, type: "card", content: JSON.parse(`{"cards": []}`) })
+  if (checkError) {
+    console.log(checkError)
+    return redirect('/error')
+  }
   revalidatePath('/', 'layout')
   redirect('/home')
 }
@@ -132,7 +138,7 @@ export async function joinGroup(formData: FormData) {
   const supabase = await createClient()
   let userId
   let groupId = formData.get('code') as string
-  
+
   const { data: userData, error } = await supabase.auth.getUser()
   if (error || !userData) {
     console.log(error)
@@ -144,7 +150,7 @@ export async function joinGroup(formData: FormData) {
     .select()
     .eq("group_id", groupId)
     .eq("user_id", userId)
-  if(!checkError && data && data.length > 0){
+  if (!checkError && data && data.length > 0) {
     return "Already in group!"
 
   }
@@ -153,7 +159,7 @@ export async function joinGroup(formData: FormData) {
     .insert({ group_id: groupId, user_id: userId, created_at: new Date().toISOString() })
   if (GroupError) {
     console.log(GroupError)
-    return GroupError 
+    return GroupError
   }
   return "Done!"
 }
@@ -198,7 +204,6 @@ export async function addActivity(formData: FormData) {
     time: finalTime,
     title: formData.get('name')
   })
-
   const { error } = await supabase
     .from("group_content")
     .update({ content: content[0]?.content })
@@ -233,27 +238,27 @@ export async function updateUser(formData: FormData) {
 
   if (
     (avatar instanceof File &&
-    (avatar.type === 'image/jpeg' || avatar.type === 'image/png')) 
+      (avatar.type === 'image/jpeg' || avatar.type === 'image/png'))
     && formData.has('name')
   ) {
-    
+
     const buffer = Buffer.from(await avatar.arrayBuffer());
 
-  
+
     const resizedBuffer = await sharp(buffer)
-    .resize(250, 250)
-    .png()
-    .toBuffer();
-    
+      .resize(250, 250)
+      .png()
+      .toBuffer();
+
     const { error: imgError } = await supabase.storage.from('avatars').update(`${userId}.png?t=${Date.now()}`, resizedBuffer, { upsert: true });
-    if(imgError){
+    if (imgError) {
       console.log("gang")
       console.log(imgError)
       return redirect('/error')
 
     }
-    const {data, error: userError} = await supabase.from("profiles").select().eq("id", userId)
-    if(userError){
+    const { data, error: userError } = await supabase.from("profiles").select().eq("id", userId)
+    if (userError) {
       console.log(userError)
       return redirect("/error")
 
@@ -263,38 +268,38 @@ export async function updateUser(formData: FormData) {
 
 
     const { error } = await supabase.from('profiles').update({ avatar: urlData, created_at: new Date(Date.now()).toISOString() }).eq('id', userId)
-    if(error) {
+    if (error) {
       console.log("error")
       console.log(error)
       return redirect('/error')
     }
-  } else if(formData.has('name') && !formData.has('avatar')) {
-    console.log("gang")
+  } else if (formData.has('name') && !formData.has('avatar')) {
+    console.log("gang 123")
     const { error } = await supabase.from('profiles').update({ username: formData.get("name") }).eq('id', userId)
-    if(error) {
+    if (error) {
       console.log(error)
       return redirect('/error')
     }
 
-  } else if(!formData.has('name') && avatar instanceof File) {
-    
-    
+  } else if (!formData.has('name') && avatar instanceof File) {
+
+
     const buffer = Buffer.from(await avatar.arrayBuffer());
 
-  
+
     const resizedBuffer = await sharp(buffer)
-    .resize(250, 250)
-    .png()
-    .toBuffer();
-    
-    
+      .resize(250, 250)
+      .png()
+      .toBuffer();
+
+
     const { error: imgError } = await supabase.storage.from('avatars').update(`${userId}.png`, resizedBuffer, { upsert: true });
-    if(imgError){
+    if (imgError) {
       console.log(imgError)
       return redirect('/error')
     }
-    const {data, error: userError} = await supabase.from("profiles").select().eq("id", userId)
-    if(userError){
+    const { data, error: userError } = await supabase.from("profiles").select().eq("id", userId)
+    if (userError) {
       console.log(userError)
       return redirect("/error")
 
@@ -302,27 +307,127 @@ export async function updateUser(formData: FormData) {
     const { data: urlData } = await supabase.storage.from('avatars').getPublicUrl(`${userId}.png?t=${data[0].created_at}`)
 
     const { error } = await supabase.from('profiles').update({ avatar: urlData, username: formData.get("name") }).eq('id', userId)
-    if(error) {
-       
+    if (error) {
+
       console.log(error)
       return redirect('/error')
     }
   }
 
   return redirect('/home');
-  }
+}
 
 export async function saveGroup(group: any) {
   const cookieStore = await cookies()
-  cookieStore.set('group', group, {secure: true})
-    
-  
+  cookieStore.set('group', group, { secure: true })
+
+
 }
 
 export async function readGroup() {
   const cookieStore = await cookies()
-  
+
   return cookieStore.get('group')
+
+
+}
+
+export async function updateGroup(formData: FormData, groupId: string) {
+  const supabase = await createClient();
+
+  const avatar = formData.get('avatar');
+ 
+  console.log(formData.has('name'))
+  console.log(formData.has('avatar'))
+
+ console.log(formData.get('name'))
   
+
   
+
+  if (
+    (avatar instanceof File &&
+      (avatar.type === 'image/jpeg' || avatar.type === 'image/png'))
+    && formData.has('name')
+  ) {
+
+    const buffer = Buffer.from(await avatar.arrayBuffer());
+
+
+    const resizedBuffer = await sharp(buffer)
+      .resize(250, 250)
+      .png()
+      .toBuffer();
+
+    const { error: imgError } = await supabase.storage.from('avatars').update(`groups/${groupId}.png?t=${Date.now()}`, resizedBuffer, { upsert: true });
+    if (imgError) {
+      console.log("gang")
+      console.log(imgError)
+      return redirect('/error')
+
+    }
+    const { data, error: userError } = await supabase.from("groups").select().eq("id", groupId)
+    if (userError) {
+      console.log(userError)
+      return redirect("/error")
+
+    }
+    const { data: urlData } = await supabase.storage.from('avatars').getPublicUrl(`groups/${groupId}.png?t=${data[0].created_at}`)
+
+
+
+    const { error } = await supabase.from('groups').update({ avatar: urlData, created_at: new Date(Date.now()).toISOString() }).eq('id', groupId)
+    if (error) {
+      console.log("error")
+      console.log(error)
+      return redirect('/error')
+    }
+  } else if (formData.has('name') && !formData.has('avatar')) {
+    console.log("gang 1223")
+    const { error } = await supabase.from('groups').update({ name: formData.get("name") }).eq('id', groupId)
+    if (error) {
+      console.log(error)
+      return redirect('/error')
+    }
+
+  } else if (!formData.has('name') && avatar instanceof File) {
+
+
+    const buffer = Buffer.from(await avatar.arrayBuffer());
+
+
+    const resizedBuffer = await sharp(buffer)
+      .resize(250, 250)
+      .png()
+      .toBuffer();
+
+
+    const { error: imgError } = await supabase.storage.from('avatars').update(`groups/${groupId}.png?t=${Date.now()}`, resizedBuffer, { upsert: true });
+    if (imgError) {
+      console.log("gang 123")
+      console.log(imgError)
+      return redirect('/error')
+
+    }
+    const { data, error: userError } = await supabase.from("groups").select().eq("id", groupId)
+    if (userError) {
+      console.log(userError)
+      return redirect("/error")
+
+    }
+    const { data: urlData } = await supabase.storage.from('avatars').getPublicUrl(`groups/${groupId}.png?t=${data[0].created_at}`)
+
+
+    const { error } = await supabase.from('groups').update({ avatar: urlData, name: formData.get("name") }).eq('id', groupId)
+    if (error) {
+
+      console.log(error)
+      return redirect('/error')
+    }
+  }
+
+  return redirect('/home');
+
+
+
 }

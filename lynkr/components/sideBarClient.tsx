@@ -1,57 +1,62 @@
 "use client"
 
-import { Plus } from 'lucide-react';
+import { Plus, Settings2 } from 'lucide-react';
 import Modal from '@mui/material/Modal';
 import NewGroupModal from './nGroupModal';
 import { useState, useEffect } from 'react';
 import ScrollContainer from 'react-indiana-drag-scroll'
 import { useShared } from './contentProvider';
 import { fetchGroups, readGroup, saveGroup } from './actions';
+import { Tooltip } from '@mui/material';
+import GSettingsModal from './gSettingsModal';
 
 
 export default function SideBarClient() {
     const { setSharedValue, sharedValue } = useShared();
+    const [open1, setOpen1] = useState(false);
     const [open, setOpen] = useState(false);
     const [groups, setGroups] = useState<any[]>()
+    const handleOpen1 = () => setOpen1(true);
+    const handleClose1 = () => setOpen1(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    
-     useEffect(() => {
-            const fGroups = async () => {
-                const values = await fetchGroups()
-                setGroups(values)
-                console.log(groups)
-            }
-            fGroups()
-            console.log(groups)
-    }, []) 
+
+    useEffect(() => {
+        const fGroups = async () => {
+            const values = await fetchGroups()
+            setGroups(values)
+
+        }
+        fGroups()
+
+    }, [])
     useEffect(() => {
         console.log(sharedValue)
         const save = async () => {
-            
-            if(sharedValue === "00000000-0000-0000-0000-000000000000") {
+
+            if (sharedValue === "00000000-0000-0000-0000-000000000000") {
                 const value = await readGroup()
                 setSharedValue(value?.value)
                 console.log(sharedValue)
-            } 
+            }
             await saveGroup(sharedValue as string)
-        }   
+        }
         save()
         console.log(sharedValue)
-    }, [sharedValue]) 
-    return <div >
+    }, [sharedValue])
+    return <div className="h-screen max-w-20 bg-[#161616] flex flex-col items-center">
 
 
         <ScrollContainer horizontal={false} className="h-screen max-w-20 bg-[#161616] flex flex-col items-center">
-
+            <Tooltip title="New Group">
             <div
-                className='m-2 min-w-[3.5rem] min-h-[3.5rem] rounded-xl bg-inherit text-white flex items-center justify-center border border-white'
+                  className='cursor-pointer m-2 min-w-[3.5rem] min-h-[3.5rem] rounded-xl bg-inherit text-white flex items-center justify-center border border-white'
             >
 
-                <Plus strokeWidth={2.5} onClick={handleOpen} />
+                <Plus strokeWidth={2.5} onClick={handleOpen1}/>
                 <Modal
-                    open={open}
-                    onClose={handleClose}
+                    open={open1}
+                    onClose={handleClose1}
                     aria-labelledby="Create-Group"
                     aria-describedby="Used-for-creating-groups ">
 
@@ -60,6 +65,8 @@ export default function SideBarClient() {
                 </Modal>
 
             </div>
+            </Tooltip>
+
             {
                 groups?.map((group) => group.solo && (
 
@@ -67,7 +74,7 @@ export default function SideBarClient() {
                         {sharedValue === group.id ? <div className='h-10 w-2 bg-white rounded-xl -scale-x-75' /> : null}
                         <div key={group.id}
                             className='m-2 w-[3.5rem] h-[3.5rem] rounded-xl bg-inherit text-black flex items-center justify-center' style={{
-                                backgroundImage: group.avatar ? `url(${group.avatar})` : 'none',
+                                backgroundImage: group.avatar ? `url(${JSON.parse(group.avatar).publicUrl})` : 'none',
                                 backgroundColor: group.avatar ? 'transparent' : '#FFF',
                                 backgroundSize: "cover"
                             }}
@@ -94,7 +101,7 @@ export default function SideBarClient() {
                     <div key={group.id}
                         className='m-2 w-[3.5rem] h-[3.5rem] rounded-xl bg-inherit text-black flex items-center justify-center'
                         style={{
-                            backgroundImage: group.avatar ? `url(${group.avatar})` : 'none',
+                            backgroundImage: group.avatar ? `url(${JSON.parse(group.avatar).publicUrl})` : 'none',
                             backgroundColor: group.avatar ? 'transparent' : '#FFF',
                             backgroundSize: "cover"
                         }}
@@ -109,7 +116,26 @@ export default function SideBarClient() {
             }
 
         </ScrollContainer>
+        <Tooltip title="Group Settings">
+        <div
+             className='cursor-pointer m-2 min-w-[3.5rem] min-h-[3.5rem] rounded-xl bg-inherit text-white flex items-center justify-center border border-white'
+        >
+            
+              
+                <Settings2 strokeWidth={2.5} onClick={handleOpen}/>
+                <Modal
+                    open={open}
+                    onClose={handleClose}
+                    aria-labelledby="Create-Group"
+                    aria-describedby="Used-for-creating-groups ">
 
+                    <GSettingsModal />
+
+                </Modal>
+             
+               
+        </div>
+            </Tooltip>
 
     </div>
 
