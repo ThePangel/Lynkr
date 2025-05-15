@@ -33,7 +33,7 @@ export default function GSettingsModal() {
         console.log(sharedValue)
         updateGroup(formData, sharedValue)
 
-        //window.location.reload();
+        window.location.reload();
 
 
     };
