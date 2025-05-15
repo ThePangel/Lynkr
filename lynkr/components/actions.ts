@@ -157,7 +157,7 @@ export async function joinGroup(formData: FormData) {
   return "Done!"
 }
 
-export async function GetContent(id: number) {
+export async function GetContent(id: string) {
   const supabase = await createClient()
 
   const { data, error } = await supabase
@@ -190,7 +190,7 @@ export async function addActivity(formData: FormData) {
   const finalTime = input + tzString;
 
 
-  const content = await GetContent(parseInt(formData.get('groupId') as string))
+  const content = await GetContent(formData.get('groupId') as string)
 
   content[0]?.content?.cards.push({
     description: formData.get('description'),
