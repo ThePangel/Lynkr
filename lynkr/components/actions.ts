@@ -201,7 +201,7 @@ export async function addActivity(formData: FormData) {
   const { error } = await supabase
     .from("group_content")
     .update({ content: content[0]?.content })
-    .eq("group_id", parseInt(formData.get('groupId') as string))
+    .eq("group_id", formData.get('groupId') as string)
     .eq("type", "card")
   if (error) {
 
