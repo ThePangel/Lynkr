@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import NewActivityModal from "@/components/nActivityModal";
 import { useShared } from "@/components/contentProvider";
 import getGroup from "./actions";
+import Status from "@/components/status";
 
 export default function Home() {
 
@@ -49,6 +50,8 @@ export default function Home() {
         </div>
 
         <Activities />
+        <h1 className="p-3  text-white font-mono text-5xl font-bold">Status</h1>
+        <Status />
       </main>
     </>
   );

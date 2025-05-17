@@ -125,7 +125,9 @@ export async function newGroup(formData: FormData) {
   }
   const { error: checkError } = await supabase
     .from("group_content")
-    .insert({ group_id: data?.id, type: "card", content: JSON.parse(`{"cards": []}`) })
+    .insert([{ group_id: data?.id, type: "card", content: JSON.parse(`{"cards": []}`) },
+            { group_id: data?.id, type: "status", content: JSON.parse(`{"status": []}`) }])
+    
   if (checkError) {
     console.log(checkError)
     return redirect('/error')
@@ -164,13 +166,14 @@ export async function joinGroup(formData: FormData) {
   return "Done!"
 }
 
-export async function GetContent(id: string) {
+export async function getCards(id: string) {
   const supabase = await createClient()
 
   const { data, error } = await supabase
     .from("group_content")
     .select()
     .eq("group_id", id)
+    .eq("type", "card")
   if (error || !data) {
     console.log("User")
     console.log(error)
@@ -197,7 +200,7 @@ export async function addActivity(formData: FormData) {
   const finalTime = input + tzString;
 
 
-  const content = await GetContent(formData.get('groupId') as string)
+  const content = await getCards(formData.get('groupId') as string)
 
   content[0]?.content?.cards.push({
     description: formData.get('description'),
@@ -427,7 +430,62 @@ export async function updateGroup(formData: FormData, groupId: string) {
   }
 
   return redirect('/home');
+}
+
+export async function getStatus(id: string) {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from("group_content")
+    .select()
+    .eq("group_id", id)
+    .eq("type", "status")
+  if (error || !data) {
+    console.log("User")
+    console.log(error)
+    return redirect('/error')
+  }
 
 
+  console.log(data[0]?.content?.status)
+  
+  return data[0]?.content?.status
+}
 
+export async function addStatus(formData: FormData) {
+  const supabase = await createClient()
+
+  const content = await getStatus(formData.get('groupId') as string)
+
+  content[0]?.content?.cards.push({
+    user_id: formData.get('userId'),
+    title: formData.get('name')
+  })
+  const { error } = await supabase
+    .from("group_content")
+    .update({ content: content[0]?.content })
+    .eq("group_id", formData.get('groupId') as string)
+    .eq("type", "status")
+  if (error) {
+ 
+    console.log(error)
+    return redirect('/error')
+
+  }
+
+  return redirect('/home')
+}
+export async function statusAvatar(id: string) {
+  console.log("serveravatar")
+  const supabase = await createClient()
+  console.log(id)
+  const { data, error } = await supabase.from("profiles")
+  .select()
+  .eq("id", id)
+  if( error ) {
+    console.log(error)
+    return redirect("/error")
+  }
+  console.log(id)
+  return JSON.parse(data[0].avatar).publicUrl
 }

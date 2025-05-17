@@ -1,5 +1,5 @@
 "use client"
-import { GetContent } from "./actions";
+import { getCards } from "./actions";
 import { useShared } from "./contentProvider"
 import { useState, useEffect } from "react";
 import ScrollContainer from 'react-indiana-drag-scroll'
@@ -15,7 +15,7 @@ export default function Activities() {
     useEffect(() => {
         console.log(sharedValue)
         async function fetch() {
-            const data = await GetContent(sharedValue)
+            const data = await getCards(sharedValue)
             if (data) {
                 console.log(data)
 

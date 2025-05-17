@@ -14,7 +14,7 @@ export default function LoginPage() {
     
             
             let formData = new FormData(form);
-           
+            
             
             const message = await signup(formData)
             
