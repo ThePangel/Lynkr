@@ -18,6 +18,8 @@ export default function Status() {
         const fetch = async () => {
 
             const value = await getStatus(sharedValue)
+            
+            if(value) {
             setStatus(value)
             await Promise.all(value?.map(async (valueV: any) => {
 
@@ -31,28 +33,29 @@ export default function Status() {
 
             }))
         }
+        }
         fetch()
 
     }, [sharedValue])
     useEffect(() => {
-
+        console.log(status)
     }, [status]);
 
-    return <ScrollContainer horizontal={false} className="overflow-y-scroll h-[14rem] w-1/2 ">
-        <div className="p-2 grid  grid-cols-2 auto-rows-min gap-5-">
+    return <div className="overflow-y-scroll h-[14rem] w-1/2 no-scrollbar">
+        <div className="p-2 grid  grid-cols-2 auto-rows-min gap-5">
         {status?.map((statusV) => (
-            <div key={statusV.user_id} id={statusV.user_id} className="flex h-full w-full flex-row justify-between"
+            <div key={statusV.created_at} id={statusV.created_at} className="flex h-full w-full flex-row justify-between"
                 style={{
                     filter: 'drop-shadow(0 0 5px rgba(255, 255, 255, 0.4))'
                 }}>
-                <div className="mt-9 max-w-[2.5rem] max-h-[2.5rem] rounded-full border-2 flex-1" style={{
+                <div className=" mt-10 max-w-[2.5rem] max-h-[2.5rem] rounded-full border-2 flex-1" style={{
                     backgroundImage: avatarUrl?.[statusV.user_id]
                         ? `url(${avatarUrl?.[statusV.user_id]})`
                         : 'none',
                     backgroundColor: avatarUrl ? 'transparent' : '#FFF',
                     backgroundSize: "cover"
                 }} />
-                <div className="mr-1 rounded-r-lg rounded-tl-lg bg-white min-h-[5rem] w-[18rem] flex-2 backdrop-blur-xl" style={{
+                <div className="shrink ml-2 mr-1 rounded-r-lg rounded-tl-lg bg-white min-h-[5rem] w-[18rem] flex-1" style={{
                     filter: 'drop-shadow(0 0 2px rgba(255, 255, 255, 0.4))'
                 }}><h1 className="m-1 text-xl text-black">{statusV.name}</h1></div>
 
@@ -71,5 +74,5 @@ export default function Status() {
 
 
         </div>
-    </ScrollContainer> 
+    </div> 
 }

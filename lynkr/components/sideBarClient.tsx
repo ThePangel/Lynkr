@@ -47,7 +47,7 @@ export default function SideBarClient() {
     return <div className="h-screen max-w-20 bg-[#161616] flex flex-col items-center">
 
 
-        <ScrollContainer horizontal={false} className="h-screen max-w-20 bg-[#161616] flex flex-col items-center">
+        <div className="overflow-y-scroll h-screen max-w-20 bg-[#161616] flex flex-col items-center no-scrollbar">
             <Tooltip title="New Group">
             <div
                   className='cursor-pointer m-2 min-w-[3.5rem] min-h-[3.5rem] rounded-xl bg-inherit text-white flex items-center justify-center border border-white'
@@ -114,7 +114,7 @@ export default function SideBarClient() {
 
             }
 
-        </ScrollContainer>
+        </div>
         <Tooltip title="Group Settings">
         <div
              className='cursor-pointer m-2 min-w-[3.5rem] min-h-[3.5rem] rounded-xl bg-inherit text-white flex items-center justify-center border border-white'

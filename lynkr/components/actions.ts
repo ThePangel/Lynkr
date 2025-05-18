@@ -125,9 +125,9 @@ export async function newGroup(formData: FormData) {
   }
   const { error: checkError } = await supabase
     .from("group_content")
-    .insert([{ group_id: data?.id, type: "card", content: JSON.parse(`{"cards": []}`) },
-            { group_id: data?.id, type: "status", content: JSON.parse(`{"status": []}`) }])
-    
+    .insert([{ group_id: data?.id, type: "card", content: JSON.parse(`[]`) },
+    { group_id: data?.id, type: "status", content: JSON.parse(`[]`) }])
+
   if (checkError) {
     console.log(checkError)
     return redirect('/error')
@@ -181,7 +181,7 @@ export async function getCards(id: string) {
   }
 
 
-  //console.log(data)
+  console.log(data[0]?.content[0])
 
   return data
 }
@@ -201,8 +201,8 @@ export async function addActivity(formData: FormData) {
 
 
   const content = await getCards(formData.get('groupId') as string)
-
-  content[0]?.content?.cards.push({
+  
+  content[0]?.content?.push({
     description: formData.get('description'),
     time: finalTime,
     title: formData.get('name')
@@ -339,14 +339,14 @@ export async function updateGroup(formData: FormData, groupId: string) {
   const supabase = await createClient();
 
   const avatar = formData.get('avatar');
- 
+
   console.log(formData.has('name'))
   console.log(formData.has('avatar'))
 
- console.log(formData.get('name'))
-  
+  console.log(formData.get('name'))
 
-  
+
+
 
   if (
     (avatar instanceof File &&
@@ -379,7 +379,7 @@ export async function updateGroup(formData: FormData, groupId: string) {
 
 
 
-    const { error } = await supabase.from('groups').update({ avatar: urlData, name: formData.get("name"),created_at: new Date(Date.now()).toISOString() }).eq('id', groupId)
+    const { error } = await supabase.from('groups').update({ avatar: urlData, name: formData.get("name"), created_at: new Date(Date.now()).toISOString() }).eq('id', groupId)
     if (error) {
       console.log("error")
       console.log(error)
@@ -445,29 +445,52 @@ export async function getStatus(id: string) {
     console.log(error)
     return redirect('/error')
   }
+  console.log(data[0]?.content)
+  const filtered = await checkStatus(data[0]?.content)
+  const { error: testError } = await supabase
+    .from("group_content")
+    .update({ content: filtered })
+    .eq("group_id", id)
+    .eq("type", "status")
+  if (testError) {
 
+    console.log(testError)
+    return redirect('/error')
 
-  console.log(data[0]?.content?.status)
+  }
   
-  return data[0]?.content?.status
+
+  return filtered
 }
 
 export async function addStatus(formData: FormData) {
   const supabase = await createClient()
 
-  const content = await getStatus(formData.get('groupId') as string)
+  const { data: userData, error: userError } = await supabase.auth.getUser()
 
-  content[0]?.content?.cards.push({
-    user_id: formData.get('userId'),
-    title: formData.get('name')
+  if (userError || !userData) {
+    console.log(userError)
+    return redirect('/error')
+  }
+  const userId = userData?.user?.id;
+
+  const content = await getStatus(formData.get('groupId') as string)
+  console.log(formData)
+  console.log("test")
+  
+  content?.push({
+    user_id: userId,
+    name: formData.get('name') as string,
+    created_at: formData.get('created_at') as string
   })
+  
   const { error } = await supabase
     .from("group_content")
-    .update({ content: content[0]?.content })
+    .update({ content: content })
     .eq("group_id", formData.get('groupId') as string)
     .eq("type", "status")
   if (error) {
- 
+
     console.log(error)
     return redirect('/error')
 
@@ -480,12 +503,25 @@ export async function statusAvatar(id: string) {
   const supabase = await createClient()
   console.log(id)
   const { data, error } = await supabase.from("profiles")
-  .select()
-  .eq("id", id)
-  if( error ) {
+    .select()
+    .eq("id", id)
+  if (error) {
     console.log(error)
     return redirect("/error")
   }
   console.log(id)
   return JSON.parse(data[0].avatar).publicUrl
 }
+
+export async function checkStatus(values: any[]) {
+  
+  if(values) {
+    const filtered = values?.filter(item => {
+      const created = new Date(item.created_at);
+      const timeDiff = new Date().getTime() - created.getTime();
+      const oneDay = 24 * 60 * 60 * 1000;
+      return timeDiff < oneDay; 
+    });
+    return filtered
+    }
+  }
