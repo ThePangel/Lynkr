@@ -9,6 +9,7 @@ import { useShared } from "@/components/contentProvider";
 import getGroup from "./actions";
 import Status from "@/components/status";
 import NewStatusModal from "@/components/nStatusModal";
+import KonamiVideo from "@/components/majik";
 
 export default function Home() {
 
@@ -57,6 +58,7 @@ export default function Home() {
         </div>
         
         <Status />
+        <KonamiVideo />
       </main>
     </>
   );
