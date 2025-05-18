@@ -163,12 +163,13 @@ export async function joinGroup(formData: FormData) {
     console.log(GroupError)
     return GroupError
   }
-  return "Done!"
+  return redirect('/home')
 }
+
+
 
 export async function getCards(id: string) {
   const supabase = await createClient()
-
   const { data, error } = await supabase
     .from("group_content")
     .select()
@@ -179,46 +180,50 @@ export async function getCards(id: string) {
     console.log(error)
     return redirect('/error')
   }
+  const filtered = await checkCards(data[0]?.content)
+  const { error: testError } = await supabase
+    .from("group_content")
+    .update({ content: filtered })
+    .eq("group_id", id)
+    .eq("type", "card")
+  if (testError) {
 
+    console.log(testError)
+    return redirect('/error')
 
-  console.log(data[0]?.content[0])
+  }
+  console.log(filtered)
 
-  return data
+  return filtered
 }
 
 export async function addActivity(formData: FormData) {
   const supabase = await createClient()
 
-
-  const input = formData.get('datetime') as string;
-  const localDate = new Date(input);
-  const tzOffsetMinutes = localDate.getTimezoneOffset();
-  const sign = tzOffsetMinutes < 0 ? '+' : '-';
-  const offsetHours = Math.abs(Math.floor(tzOffsetMinutes / 60));
-  const offsetMinutes = Math.abs(tzOffsetMinutes % 60);
-  const tzString = sign + String(offsetHours).padStart(2, '0') + ':' + String(offsetMinutes).padStart(2, '0');
-  const finalTime = input + tzString;
-
-
   const content = await getCards(formData.get('groupId') as string)
-  
-  content[0]?.content?.push({
-    description: formData.get('description'),
-    time: finalTime,
-    title: formData.get('name')
-  })
-  const { error } = await supabase
-    .from("group_content")
-    .update({ content: content[0]?.content })
-    .eq("group_id", formData.get('groupId') as string)
-    .eq("type", "card")
-  if (error) {
+  const dateTime = formData.get('datetime') as string;
+  const utc = new Date(dateTime);
+  const isoString = utc.toISOString();
+  if (content) {
+    content.push({
+      description: formData.get('description'),
+      time: isoString,
+      title: formData.get('name')
+    })
+     console.log("hola")
+    console.log(content)
+    const { error } = await supabase
+      .from("group_content")
+      .update({ content: content })
+      .eq("group_id", formData.get('groupId') as string)
+      .eq("type", "card")
+    if (error) {
 
-    console.log(error)
-    return redirect('/error')
+      console.log(error)
+      return redirect('/error')
 
+    }
   }
-
   return redirect('/home')
 }
 
@@ -445,7 +450,7 @@ export async function getStatus(id: string) {
     console.log(error)
     return redirect('/error')
   }
-  console.log(data[0]?.content)
+
   const filtered = await checkStatus(data[0]?.content)
   const { error: testError } = await supabase
     .from("group_content")
@@ -458,7 +463,7 @@ export async function getStatus(id: string) {
     return redirect('/error')
 
   }
-  
+
 
   return filtered
 }
@@ -474,16 +479,16 @@ export async function addStatus(formData: FormData) {
   }
   const userId = userData?.user?.id;
 
-  const content = await getStatus(formData.get('groupId') as string)
+  let content = await getStatus(formData.get('groupId') as string)
   console.log(formData)
   console.log("test")
-  
+  content = content?.filter((value) => value.user_id !== userId)
   content?.push({
     user_id: userId,
     name: formData.get('name') as string,
     created_at: formData.get('created_at') as string
   })
-  
+
   const { error } = await supabase
     .from("group_content")
     .update({ content: content })
@@ -498,6 +503,7 @@ export async function addStatus(formData: FormData) {
 
   return redirect('/home')
 }
+
 export async function statusAvatar(id: string) {
   console.log("serveravatar")
   const supabase = await createClient()
@@ -514,14 +520,28 @@ export async function statusAvatar(id: string) {
 }
 
 export async function checkStatus(values: any[]) {
-  
-  if(values) {
+
+  if (values) {
     const filtered = values?.filter(item => {
       const created = new Date(item.created_at);
       const timeDiff = new Date().getTime() - created.getTime();
       const oneDay = 24 * 60 * 60 * 1000;
-      return timeDiff < oneDay; 
+      return timeDiff < oneDay;
     });
     return filtered
-    }
   }
+}
+
+export async function checkCards(values: any[]) {
+
+  if (values) {
+    const filtered = values?.filter(item => {
+      const created = new Date(item.time);
+      const timeDiff = new Date().getTime() - created.getTime();
+      const end = 2 * 60 * 60 * 1000;
+      return timeDiff < end;
+    });
+
+    return filtered
+  }
+}

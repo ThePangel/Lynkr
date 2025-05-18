@@ -41,11 +41,11 @@ export default function Activities() {
         return `${days} days ${hours}:${minutes}:${seconds}`;
     }
     useEffect(() => {
-        if (!content[0]?.content) return;
+        if (!content) return;
 
         const interval = setInterval(() => {
             const newCountdowns: Record<string, string> = {};
-            content[0].content.forEach((card: any) => {
+            content.forEach((card: any) => {
                 if (!card.solo) {
                     newCountdowns[card.title] = formatCountdown(card.time);
                 }
@@ -60,7 +60,7 @@ export default function Activities() {
         className=" scroll-container flex flex-row items-center  justify-items-start h-[20rem]  bg-[#161616
         type: 'card',] overflow-x-auto overflow-y-hidden no-scrollbar"
         style={{ width: 'calc(100vw - 5rem)' }} >
-        {content[0]?.content?.map((card: any) => !card.solo && (
+        {content?.map((card: any) => !card.solo && (
 
 
             <div key={card.time}
