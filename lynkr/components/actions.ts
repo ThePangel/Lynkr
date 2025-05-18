@@ -144,7 +144,7 @@ export async function joinGroup(formData: FormData) {
   const { data: userData, error } = await supabase.auth.getUser()
   if (error || !userData) {
     console.log(error)
-    return error
+    return error?.code
   }
   userId = userData?.user?.id;
   const { data, error: checkError } = await supabase
@@ -161,7 +161,7 @@ export async function joinGroup(formData: FormData) {
     .insert({ group_id: groupId, user_id: userId, created_at: new Date().toISOString() })
   if (GroupError) {
     console.log(GroupError)
-    return GroupError
+    return GroupError.code
   }
   return redirect('/home')
 }
@@ -439,33 +439,34 @@ export async function updateGroup(formData: FormData, groupId: string) {
 
 export async function getStatus(id: string) {
   const supabase = await createClient()
+  if(id) {
+    const { data, error } = await supabase
+      .from("group_content")
+      .select()
+      .eq("group_id", id)
+      .eq("type", "status")
+    if (error || !data) {
+      console.log("User")
+      console.log(error)
+      return redirect('/error')
+    }
 
-  const { data, error } = await supabase
-    .from("group_content")
-    .select()
-    .eq("group_id", id)
-    .eq("type", "status")
-  if (error || !data) {
-    console.log("User")
-    console.log(error)
-    return redirect('/error')
+    const filtered = await checkStatus(data[0]?.content)
+    const { error: testError } = await supabase
+      .from("group_content")
+      .update({ content: filtered })
+      .eq("group_id", id)
+      .eq("type", "status")
+    if (testError) {
+
+      console.log(testError)
+      return redirect('/error')
+
+    }
+     return filtered
   }
 
-  const filtered = await checkStatus(data[0]?.content)
-  const { error: testError } = await supabase
-    .from("group_content")
-    .update({ content: filtered })
-    .eq("group_id", id)
-    .eq("type", "status")
-  if (testError) {
-
-    console.log(testError)
-    return redirect('/error')
-
-  }
-
-
-  return filtered
+ 
 }
 
 export async function addStatus(formData: FormData) {

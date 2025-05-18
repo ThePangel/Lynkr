@@ -38,7 +38,7 @@ export async function signup(formData: FormData) {
 
   
   if (UserError) {
-    return UserError
+    return UserError.code
   }
 
 

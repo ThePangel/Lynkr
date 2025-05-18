@@ -33,16 +33,24 @@ export default function SideBarClient() {
     useEffect(() => {
         console.log(sharedValue)
         const save = async () => {
-
-            if (sharedValue === "00000000-0000-0000-0000-000000000000") {
-                const value = await readGroup()
+             const value = await readGroup()
+            if (sharedValue === "00000000-0000-0000-0000-000000000000" && value !== undefined) {
+               
                 setSharedValue(value?.value)
                 console.log(sharedValue)
+                await saveGroup(sharedValue as string)
+            } else {
+                
+                
+                await saveGroup(sharedValue as string)
             }
-            await saveGroup(sharedValue as string)
+                
+            
+            
+            
         }
         save()
-        console.log(sharedValue)
+        console.log(sharedValue as string)
     }, [sharedValue])
     return <div className="h-screen max-w-20 bg-[#161616] flex flex-col items-center">
 
