@@ -33,7 +33,7 @@ function ChildModal() {
     if (typeof message === "string") {
       setError(message)
 
-    } else if (typeof message === "object" && message?.code === "23503") {
+    } else if (typeof message === "object" && message === "23503") {
       setError("Group does not exist"!)
       console.log(error)
     }
