@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react"
 import { useShared } from "./contentProvider"
 import { getStatus, getUsername, statusAvatar } from "./actions"
-import ScrollContainer from "react-indiana-drag-scroll"
-import { stat } from "fs"
+import { createClient } from '@/utils/supabase/client'
 
 export default function Status() {
     const [status, setStatus] = useState<any[]>()
@@ -15,14 +14,12 @@ export default function Status() {
 
     useEffect(() => {
 
-
+        let subscription: any = null
         const fetch = async () => {
-
+            const supabase = await createClient()
+            await supabase.realtime.setAuth()
             const value = await getStatus(sharedValue)
-
             if (value) {
-
-
                 const status = await Promise.all(value?.map(async (valueV: any) => {
 
                     const username = await getUsername(valueV?.user_id)
@@ -41,8 +38,56 @@ export default function Status() {
                 setStatus(status)
                 console.log(status)
             }
+
+            subscription = await supabase
+                .channel(`group_id_status:${sharedValue}`)
+                .on('postgres_changes',
+                    {
+                        event: 'UPDATE',
+                        schema: 'public',
+                        table: 'group_content',
+                        filter: `group_id=eq.${sharedValue}`
+                    },
+                    async (payload) => {
+                      
+                        if (payload.new?.type === "status") {
+                            
+                            const status = await Promise.all(payload.new?.content?.map(async (valueV: any) => {
+
+                                const username = await getUsername(valueV?.user_id)
+                                const url = await statusAvatar(valueV?.user_id)
+
+                                setAvatarUrl(prev => ({
+                                    ...prev,
+                                    [valueV?.user_id]: url
+                                }));
+                                return {
+                                    ...valueV,
+                                    username
+                                }
+
+                            }))
+                            setStatus(status)
+
+
+                        }
+                    }
+                )
+                .subscribe()
+            console.log(subscription)
+
         }
         fetch()
+        return () => {
+            console.log(subscription)
+            if (subscription) {
+                subscription.unsubscribe();
+                console.log('Unsubscribed from realtime updates');
+            }
+        }
+
+
+
 
     }, [sharedValue])
 
@@ -67,7 +112,7 @@ export default function Status() {
                             backgroundColor: avatarUrl ? 'transparent' : '#FFF',
                             backgroundSize: "cover"
                         }} />
-                        
+
                     </div>
 
                     <div className="shrink ml-2 mr-1 rounded-r-lg rounded-tl-lg bg-white min-h-[5rem] w-[18rem] flex-1" style={{

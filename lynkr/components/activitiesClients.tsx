@@ -17,7 +17,7 @@ export default function Activities() {
     useEffect(() => {
         console.log(sharedValue)
         let subscription: any = null
-        
+
         async function fetch() {
             const supabase = await createClient()
             await supabase.realtime.setAuth()
@@ -28,7 +28,7 @@ export default function Activities() {
                 setContent(data)
             }
             subscription = await supabase
-                .channel(`group_id:${sharedValue}`)
+                .channel(`group_id_cards:${sharedValue}`)
                 .on('postgres_changes',
                     {
                         event: 'UPDATE',
@@ -36,16 +36,20 @@ export default function Activities() {
                         table: 'group_content',
                         filter: `group_id=eq.${sharedValue}`
                     },
-                    (payload) => {
-                        setContent(payload.new?.content)
+                    async (payload) => {
+                        console.log(`broooo ${payload.new?.type}`)
+                        if (payload.new?.type === "card") {
 
-                            
+                            setContent(payload.new?.content)
+
+
+                        }
                     }
                 )
                 .subscribe()
-                console.log(subscription)
-            
-        
+            console.log(subscription)
+
+
         }
         fetch()
         return () => {
@@ -56,6 +60,9 @@ export default function Activities() {
             }
         }
     }, [sharedValue])
+    useEffect(() => {
+        console.log(content)
+    }, [content])
 
     function formatCountdown(targetTime: string) {
         const now = new Date().getTime();

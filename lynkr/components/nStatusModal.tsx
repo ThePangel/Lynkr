@@ -1,6 +1,6 @@
 import { Modal } from "@mui/material";
 import { CopyPlus } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useShared } from "./contentProvider";
 import { addStatus } from "./actions";
 
@@ -13,6 +13,24 @@ export default function NewStatusModal() {
     const handleClose = () => {
         setOpen(false)
     }
+    
+    const formRef = useRef<HTMLFormElement>(null);
+    const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("test")
+    const form = formRef.current;
+    if (!form) return;
+
+
+    let formData = new FormData(form);
+
+
+    addStatus(formData)
+    
+    handleClose()
+
+
+  };
     return <div>    
         <CopyPlus onClick={handleOpen} className="text-white size-10" />
         <Modal
@@ -31,7 +49,7 @@ export default function NewStatusModal() {
             
                     <hr className='w-[28rem] border-3 m-3' />
                         
-                        <form action={addStatus} className='flex flex-col p-5 '>
+                        <form onSubmit={handleSubmit} ref={formRef} className='flex flex-col p-5 '>
             
                         <input type="hidden" name="groupId" value={sharedValue} />
                         <input type="hidden" name="created_at" value={new Date().toISOString()} />

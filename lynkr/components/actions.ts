@@ -501,7 +501,7 @@ export async function addStatus(formData: FormData) {
 
   }
 
-  return redirect('/home')
+  return 
 }
 
 export async function statusAvatar(id: string) {
