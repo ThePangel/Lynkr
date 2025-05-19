@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import { Modal } from "@mui/material";
 
 
+
 interface NewGroupModalProps {
   handleClose: () => void;
 }
@@ -10,6 +11,7 @@ interface NewGroupModalProps {
 function ChildModal() {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<any>()
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -32,12 +34,13 @@ function ChildModal() {
     console.log(message)
     if (typeof message === "string") {
       setError(message)
-
+      if(message === "Done!") {window.location.reload()}
+     
     } else if (typeof message === "object" && message === "23503") {
       setError("Group does not exist"!)
       console.log(error)
     }
-
+    
 
 
 

@@ -43,9 +43,9 @@ export async function avatar() {
     console.log(error)
     return redirect('/error')
   }
-  console.log(JSON.parse(data[0].avatar).publicUrl)
-  return (JSON.parse(data[0].avatar).publicUrl)
-
+  const validJsonString = data[0].avatar.replace(/'(https:\/\/e.*?)'/g, '"$1"')
+  
+  return JSON.parse(validJsonString).publicUrl;
 }
 
 export async function fetchGroups() {
@@ -163,7 +163,7 @@ export async function joinGroup(formData: FormData) {
     console.log(GroupError)
     return GroupError.code
   }
-  return redirect('/home')
+  return "Done!"
 }
 
 
@@ -516,8 +516,11 @@ export async function statusAvatar(id: string) {
     console.log(error)
     return redirect("/error")
   }
-  console.log(id)
-  return JSON.parse(data[0].avatar).publicUrl
+  const validJsonString = data[0].avatar.replace(/'(https:\/\/e.*?)'/g, '"$1"')
+  
+  return JSON.parse(validJsonString).publicUrl;
+  
+  
 }
 
 export async function checkStatus(values: any[]) {
@@ -545,4 +548,17 @@ export async function checkCards(values: any[]) {
 
     return filtered
   }
+}
+ 
+export async function getUsername(id: string) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("profiles")
+    .select()
+    .eq("id", id)
+  if(error && !data) {
+    console.log(error)
+    return error.code as string
+  }
+  return data[0]?.username
 }
