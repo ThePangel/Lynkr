@@ -34,7 +34,7 @@ export default function Home() {
       <main className=" bg-[#222222] h-screen">
         <div className="flex flex-row justify-items-center items-end"> 
           <div className="flex flex-col">
-            <h1 className="p-2 text-white font-mono text-3xl font-bold">{name}</h1> 
+            <h1 className="p-2 text-white font-mono text-3xl font-bold">{name} <br /> Code:{sharedValue}</h1> 
             <h1 className="p-3  text-white font-mono text-5xl font-bold">Activities coming up</h1>
           </div>
           
