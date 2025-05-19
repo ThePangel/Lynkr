@@ -1,8 +1,10 @@
 "use client"
+import { createClient } from '@/utils/supabase/client'
 import { getCards } from "./actions";
 import { useShared } from "./contentProvider"
 import { useState, useEffect } from "react";
 import ScrollContainer from 'react-indiana-drag-scroll'
+
 
 
 export default function Activities() {
@@ -14,16 +16,45 @@ export default function Activities() {
 
     useEffect(() => {
         console.log(sharedValue)
+        let subscription: any = null
+        
         async function fetch() {
+            const supabase = await createClient()
+            await supabase.realtime.setAuth()
             const data = await getCards(sharedValue)
             if (data) {
                 console.log(data)
 
-                return setContent(data)
+                setContent(data)
             }
-            return;
+            subscription = await supabase
+                .channel(`group_id:${sharedValue}`)
+                .on('postgres_changes',
+                    {
+                        event: 'UPDATE',
+                        schema: 'public',
+                        table: 'group_content',
+                        filter: `group_id=eq.${sharedValue}`
+                    },
+                    (payload) => {
+                        setContent(payload.new?.content)
+
+                            
+                    }
+                )
+                .subscribe()
+                console.log(subscription)
+            
+        
         }
         fetch()
+        return () => {
+            console.log(subscription)
+            if (subscription) {
+                subscription.unsubscribe();
+                console.log('Unsubscribed from realtime updates');
+            }
+        }
     }, [sharedValue])
 
     function formatCountdown(targetTime: string) {

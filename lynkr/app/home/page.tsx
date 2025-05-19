@@ -13,10 +13,9 @@ import KonamiVideo from "@/components/majik";
 
 export default function Home() {
 
-  const [open, setOpen] = useState(false);
-  const [ name, setName] = useState("")
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+
+  const [name, setName] = useState("")
+
   const { sharedValue } = useShared();
   useEffect(() => {
     const name = async () => {
@@ -26,28 +25,19 @@ export default function Home() {
     name()
 
   }, [sharedValue])
-  
-  
+
+
   return (
     <>
 
       <main className=" bg-[#222222] h-screen">
-        <div className="flex flex-row justify-items-center items-end"> 
+        <div className="flex flex-row justify-items-center items-end">
           <div className="flex flex-col">
-            <h1 className="p-2 text-white font-mono text-3xl font-bold">{name} <br /> Code:{sharedValue}</h1> 
+            <h1 className="p-2 text-white font-mono text-3xl font-bold">{name} <br /> Code:{sharedValue}</h1>
             <h1 className="p-3  text-white font-mono text-5xl font-bold">Activities coming up</h1>
           </div>
-          
-          <CopyPlus onClick={handleOpen} className="m-5 text-white size-10" />
-          <Modal
-            open={open}
-            onClose={handleClose}
-            aria-labelledby="Create-Group"
-            aria-describedby="Used-for-creating-groups ">
+          <NewActivityModal />
 
-            <NewActivityModal />
-
-          </Modal>
 
         </div>
 
@@ -56,7 +46,7 @@ export default function Home() {
           <h1 className="p-3  text-white font-mono text-5xl font-bold">Status</h1>
           <NewStatusModal />
         </div>
-        
+
         <Status />
         <KonamiVideo />
       </main>

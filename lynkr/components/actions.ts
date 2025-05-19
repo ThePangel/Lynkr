@@ -210,8 +210,7 @@ export async function addActivity(formData: FormData) {
       time: isoString,
       title: formData.get('name')
     })
-     console.log("hola")
-    console.log(content)
+
     const { error } = await supabase
       .from("group_content")
       .update({ content: content })
@@ -224,7 +223,7 @@ export async function addActivity(formData: FormData) {
 
     }
   }
-  return redirect('/home')
+  return 
 }
 
 export async function updateUser(formData: FormData) {
