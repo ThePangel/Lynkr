@@ -22,7 +22,7 @@ function ChildModal() {
   const formRef = useRef<HTMLFormElement>(null);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("test")
+    
     const form = formRef.current;
     if (!form) return;
 
@@ -31,7 +31,7 @@ function ChildModal() {
 
 
     const message = await joinGroup(formData)
-    console.log(message)
+    
     if (typeof message === "string") {
       setError(message)
       if(message === "Done!") {window.location.reload()}

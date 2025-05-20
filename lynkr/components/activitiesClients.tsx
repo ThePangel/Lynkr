@@ -15,7 +15,7 @@ export default function Activities() {
 
 
     useEffect(() => {
-        console.log(sharedValue)
+        
         let subscription: any = null
 
         async function fetch() {
@@ -23,7 +23,7 @@ export default function Activities() {
             await supabase.realtime.setAuth()
             const data = await getCards(sharedValue)
             if (data) {
-                console.log(data)
+               
 
                 setContent(data)
             }
@@ -37,7 +37,7 @@ export default function Activities() {
                         filter: `group_id=eq.${sharedValue}`
                     },
                     async (payload) => {
-                        console.log(`broooo ${payload.new?.type}`)
+                       
                         if (payload.new?.type === "card") {
 
                             setContent(payload.new?.content)
@@ -47,22 +47,20 @@ export default function Activities() {
                     }
                 )
                 .subscribe()
-            console.log(subscription)
+            
 
 
         }
         fetch()
         return () => {
-            console.log(subscription)
+            
             if (subscription) {
                 subscription.unsubscribe();
-                console.log('Unsubscribed from realtime updates');
+               
             }
         }
     }, [sharedValue])
-    useEffect(() => {
-        console.log(content)
-    }, [content])
+   
 
     function formatCountdown(targetTime: string) {
         const now = new Date().getTime();

@@ -29,12 +29,12 @@ export default function GSettingsModal() {
        
         const name = formData.get('name')
         const avatar = formData.get('avatar')
-        console.log(avatar)
+        
         if (!name && !avatar) {
             setError("Please fill out at least one field")
             return;
         }
-        console.log(sharedValue)
+        
         updateGroup(formData, sharedValue)
 
         window.location.reload();

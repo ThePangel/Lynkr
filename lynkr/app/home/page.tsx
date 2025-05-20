@@ -10,6 +10,7 @@ import getGroup from "./actions";
 import Status from "@/components/status";
 import NewStatusModal from "@/components/nStatusModal";
 import KonamiVideo from "@/components/majik";
+import Chat from "@/components/chat";
 
 export default function Home() {
 
@@ -46,9 +47,12 @@ export default function Home() {
           <h1 className="p-3  text-white font-mono text-5xl font-bold">Status</h1>
           <NewStatusModal />
         </div>
-
-        <Status />
-        <KonamiVideo />
+        
+        <div className="flex flex-row">
+          <Status />
+          <KonamiVideo />
+          <Chat />
+        </div>
       </main>
     </>
   );

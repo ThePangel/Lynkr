@@ -40,7 +40,7 @@ function ChildModal() {
         
         const name = formData.get('name')
         const avatar = formData.get('avatar')
-        console.log(avatar)
+        
         if (!name && !avatar) {
             setError("Please fill out at least one field")
             return;

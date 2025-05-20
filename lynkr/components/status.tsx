@@ -36,7 +36,7 @@ export default function Status() {
 
                 }))
                 setStatus(status)
-                console.log(status)
+                
             }
 
             subscription = await supabase
@@ -74,15 +74,15 @@ export default function Status() {
                     }
                 )
                 .subscribe()
-            console.log(subscription)
+           
 
         }
         fetch()
         return () => {
-            console.log(subscription)
+           
             if (subscription) {
                 subscription.unsubscribe();
-                console.log('Unsubscribed from realtime updates');
+                
             }
         }
 
@@ -92,7 +92,7 @@ export default function Status() {
     }, [sharedValue])
 
 
-    return <div className="overflow-y-scroll h-[14rem] w-1/2 no-scrollbar">
+    return <div className="overflow-y-scroll h-[25rem] w-1/2 no-scrollbar">
         <div className="p-2 grid  grid-cols-2 auto-rows-min gap-5">
             {status?.map((statusV) => (
                 <div key={statusV.created_at} id={statusV.created_at} className="flex h-full w-full flex-row justify-between"
@@ -117,7 +117,7 @@ export default function Status() {
 
                     <div className="shrink ml-2 mr-1 rounded-r-lg rounded-tl-lg bg-white min-h-[5rem] w-[18rem] flex-1" style={{
                         filter: 'drop-shadow(0 0 2px rgba(255, 255, 255, 0.4))'
-                    }}><h1 className="m-1 text-xl text-black font-mono ">{statusV.name}</h1></div>
+                    }}><h1 className="m-1 text-xl text-black font-mono ">{statusV.user}</h1></div>
 
 
 

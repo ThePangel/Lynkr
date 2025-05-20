@@ -17,7 +17,7 @@ export default function NewStatusModal() {
     const formRef = useRef<HTMLFormElement>(null);
     const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("test")
+  
     const form = formRef.current;
     if (!form) return;
 

@@ -10,6 +10,7 @@ import sharp from 'sharp';
 
 
 
+
 export async function loggingOut() {
   const supabase = await createClient();
   const cookieStore = await cookies()
@@ -44,7 +45,7 @@ export async function avatar() {
     return redirect('/error')
   }
   const validJsonString = data[0].avatar.replace(/'(https:\/\/e.*?)'/g, '"$1"')
-  
+
   return JSON.parse(validJsonString).publicUrl;
 }
 
@@ -63,7 +64,7 @@ export async function fetchGroups() {
   if (data.user) {
 
 
-    console.log(userId)
+    
     const { data } = await supabase
       .from("group_assignments")
       .select()
@@ -176,7 +177,6 @@ export async function getCards(id: string) {
     .eq("group_id", id)
     .eq("type", "card")
   if (error || !data) {
-    console.log("User")
     console.log(error)
     return redirect('/error')
   }
@@ -192,7 +192,7 @@ export async function getCards(id: string) {
     return redirect('/error')
 
   }
-  console.log(filtered)
+
 
   return filtered
 }
@@ -223,16 +223,13 @@ export async function addActivity(formData: FormData) {
 
     }
   }
-  return 
+  return
 }
 
 export async function updateUser(formData: FormData) {
   const supabase = await createClient();
 
   const avatar = formData.get('avatar');
-  console.log(avatar)
-  console.log(formData.has('name'))
-  console.log(formData.has('avatar'))
 
   let userId
   const { data: userData, error } = await supabase.auth.getUser()
@@ -259,7 +256,7 @@ export async function updateUser(formData: FormData) {
 
     const { error: imgError } = await supabase.storage.from('avatars').update(`${userId}.png?t=${Date.now()}`, resizedBuffer, { upsert: true });
     if (imgError) {
-      console.log("gang")
+
       console.log(imgError)
       return redirect('/error')
 
@@ -276,12 +273,12 @@ export async function updateUser(formData: FormData) {
 
     const { error } = await supabase.from('profiles').update({ avatar: urlData, username: formData.get("name"), created_at: new Date(Date.now()).toISOString() }).eq('id', userId)
     if (error) {
-      console.log("error")
+
       console.log(error)
       return redirect('/error')
     }
   } else if (formData.has('name') && !formData.has('avatar')) {
-    console.log("gang 123")
+
     const { error } = await supabase.from('profiles').update({ username: formData.get("name") }).eq('id', userId)
     if (error) {
       console.log(error)
@@ -344,20 +341,12 @@ export async function updateGroup(formData: FormData, groupId: string) {
 
   const avatar = formData.get('avatar');
 
-  console.log(formData.has('name'))
-  console.log(formData.has('avatar'))
-
-  console.log(formData.get('name'))
-
-
-
-
   if (
     (avatar instanceof File &&
       (avatar.type === 'image/jpeg' || avatar.type === 'image/png'))
     && formData.has('name')
   ) {
-    console.log("both")
+
     const buffer = Buffer.from(await avatar.arrayBuffer());
 
 
@@ -368,7 +357,7 @@ export async function updateGroup(formData: FormData, groupId: string) {
 
     const { error: imgError } = await supabase.storage.from('avatars').update(`groups/${groupId}.png?t=${Date.now()}`, resizedBuffer, { upsert: true });
     if (imgError) {
-      console.log("gang")
+
       console.log(imgError)
       return redirect('/error')
 
@@ -385,12 +374,12 @@ export async function updateGroup(formData: FormData, groupId: string) {
 
     const { error } = await supabase.from('groups').update({ avatar: urlData, name: formData.get("name"), created_at: new Date(Date.now()).toISOString() }).eq('id', groupId)
     if (error) {
-      console.log("error")
+
       console.log(error)
       return redirect('/error')
     }
   } else if (formData.has('name') && !formData.has('avatar')) {
-    console.log("gang 1223")
+
     const { error } = await supabase.from('groups').update({ name: formData.get("name") }).eq('id', groupId)
     if (error) {
       console.log(error)
@@ -398,7 +387,7 @@ export async function updateGroup(formData: FormData, groupId: string) {
     }
 
   } else if (!formData.has('name') && avatar instanceof File) {
-    console.log("image")
+
 
     const buffer = Buffer.from(await avatar.arrayBuffer());
 
@@ -411,7 +400,7 @@ export async function updateGroup(formData: FormData, groupId: string) {
 
     const { error: imgError } = await supabase.storage.from('avatars').update(`groups/${groupId}.png?t=${Date.now()}`, resizedBuffer, { upsert: true });
     if (imgError) {
-      console.log("gang 123")
+
       console.log(imgError)
       return redirect('/error')
 
@@ -438,14 +427,14 @@ export async function updateGroup(formData: FormData, groupId: string) {
 
 export async function getStatus(id: string) {
   const supabase = await createClient()
-  if(id) {
+  if (id) {
     const { data, error } = await supabase
       .from("group_content")
       .select()
       .eq("group_id", id)
       .eq("type", "status")
     if (error || !data) {
-      console.log("User")
+
       console.log(error)
       return redirect('/error')
     }
@@ -462,10 +451,10 @@ export async function getStatus(id: string) {
       return redirect('/error')
 
     }
-     return filtered
+    return filtered
   }
 
- 
+
 }
 
 export async function addStatus(formData: FormData) {
@@ -480,8 +469,6 @@ export async function addStatus(formData: FormData) {
   const userId = userData?.user?.id;
 
   let content = await getStatus(formData.get('groupId') as string)
-  console.log(formData)
-  console.log("test")
   content = content?.filter((value) => value.user_id !== userId)
   content?.push({
     user_id: userId,
@@ -501,13 +488,13 @@ export async function addStatus(formData: FormData) {
 
   }
 
-  return 
+  return
 }
 
 export async function statusAvatar(id: string) {
-  console.log("serveravatar")
+
   const supabase = await createClient()
-  console.log(id)
+
   const { data, error } = await supabase.from("profiles")
     .select()
     .eq("id", id)
@@ -516,10 +503,10 @@ export async function statusAvatar(id: string) {
     return redirect("/error")
   }
   const validJsonString = data[0].avatar.replace(/'(https:\/\/e.*?)'/g, '"$1"')
-  
+
   return JSON.parse(validJsonString).publicUrl;
-  
-  
+
+
 }
 
 export async function checkStatus(values: any[]) {
@@ -548,16 +535,72 @@ export async function checkCards(values: any[]) {
     return filtered
   }
 }
- 
+
 export async function getUsername(id: string) {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("profiles")
     .select()
     .eq("id", id)
-  if(error && !data) {
+  if (error && !data) {
     console.log(error)
     return error.code as string
   }
   return data[0]?.username
+}
+
+export async function sendMessage(formData: FormData) {
+  const supabase = await createClient()
+
+
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+
+  if (userError || !userData) {
+    console.log(userError)
+    return redirect('/error')
+  }
+  const userId = userData?.user?.id;
+  const { error } = await supabase
+    .from('messages')
+    .insert({ created_at: new Date().toISOString(), creator_id: userId, group_id: formData.get('groupId') as string, content: formData.get('message') })
+  if (error) {
+    formData.get('groupId') as string
+    console.log(error)
+    return redirect('/error')
+  }
+  return
+
+}
+
+export async function getMessages(id: string) {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('messages')
+    .select()
+    .eq('group_id', id)
+  if (error || !data) {
+
+    console.log(error)
+    return redirect('/error')
+  }
+
+  return data
+}
+
+export async function checkCreator(id: string) {
+  const supabase = await createClient()
+
+
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+
+  if (userError || !userData) {
+    console.log(userError)
+    return redirect('/error')
+  }
+  const userId = userData?.user?.id;
+  if (userId === id) {
+    return true
+  } else return false
+
 }

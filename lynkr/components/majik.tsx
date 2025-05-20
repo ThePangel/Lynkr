@@ -10,7 +10,7 @@ export default function KonamiVideo() {
 
   useEffect(() => {
     new KonamiCode(() => {
-      console.log("test")
+      
       setActive(true)
       videoRef.current?.play()
     })
