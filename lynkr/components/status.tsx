@@ -117,7 +117,7 @@ export default function Status() {
 
                     <div className="shrink ml-2 mr-1 rounded-r-lg rounded-tl-lg bg-white min-h-[5rem] w-[18rem] flex-1" style={{
                         filter: 'drop-shadow(0 0 2px rgba(255, 255, 255, 0.4))'
-                    }}><h1 className="m-1 text-xl text-black font-mono ">{statusV.user}</h1></div>
+                    }}><h1 className="m-1 text-xl text-black font-mono ">{statusV.name}</h1></div>
 
 
 
