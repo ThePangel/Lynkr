@@ -64,7 +64,7 @@ export async function fetchGroups() {
   if (data.user) {
 
 
-    
+
     const { data } = await supabase
       .from("group_assignments")
       .select()
@@ -440,17 +440,7 @@ export async function getStatus(id: string) {
     }
 
     const filtered = await checkStatus(data[0]?.content)
-    const { error: testError } = await supabase
-      .from("group_content")
-      .update({ content: filtered })
-      .eq("group_id", id)
-      .eq("type", "status")
-    if (testError) {
 
-      console.log(testError)
-      return redirect('/error')
-
-    }
     return filtered
   }
 
@@ -467,12 +457,16 @@ export async function addStatus(formData: FormData) {
     return redirect('/error')
   }
   const userId = userData?.user?.id;
-
+  const username = await getUsername(userId)
+  const avatarUrl = await statusAvatar(userId)
+  console.log(formData.get("groupId"))
   let content = await getStatus(formData.get('groupId') as string)
   content = content?.filter((value) => value.user_id !== userId)
   content?.push({
     user_id: userId,
+    username: username,
     name: formData.get('name') as string,
+    avatarUrl: avatarUrl,
     created_at: formData.get('created_at') as string
   })
 
@@ -584,7 +578,7 @@ export async function getMessages(id: string) {
     console.log(error)
     return redirect('/error')
   }
-  
+  console.log(data)
   return data
 }
 
@@ -603,4 +597,56 @@ export async function checkCreator(id: string) {
     return true
   } else return false
 
+}
+
+export async function sendAI(message: string) {
+
+
+
+  try {
+    const response = await fetch('https://ai.hackclub.com/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: `You are HackClub's AI, this app you are on is called Lynkr, an app by Ángel Fuentes Fernández, (that doesn't mean every Ángel is the maker, be logical) known online and github as ThePangel, this app is open source and code is available at https://github.com/thepangel/Lynkr, it is a Next.JS webapp that uses supabase, it is an app made so friends can organize their group, with tasks/events, statuses (what people are up to at that moment) and a group chat, in which you are also, on a separate chat tab, your task is to assist the user to better organize their plans, suggesting them improvements or tips based on what they tell you, try not to deviate from that task, that means only helping with this type of assistance, don't help with code or other such things, following is the past messages in the conversation and the users last request (limit yourself to 350 characters): 
+                                    ${message}`  }]
+      })
+    });
+    const data = await response.json();
+    console.log(data.choices[0].message.content)
+    return data.choices[0].message.content
+  
+  } catch (error) {
+    console.error('Error:', error);
+    return error
+  }
+
+
+
+
+
+
+
+}
+
+
+export async function getCurrentUsername() {
+  const supabase = await createClient()
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+
+  if (userError || !userData) {
+    console.log(userError)
+    return redirect('/error')
+  }
+  const userId = userData?.user?.id;
+  
+  const { data, error } = await supabase
+    .from("profiles")
+    .select()
+    .eq("id", userId)
+  if (error && !data) {
+    console.log(error)
+    return error.code as string
+  }
+  return data[0]?.username
 }

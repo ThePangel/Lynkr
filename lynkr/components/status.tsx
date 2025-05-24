@@ -7,79 +7,59 @@ import { createClient } from '@/utils/supabase/client'
 
 export default function Status() {
     const [status, setStatus] = useState<any[]>()
-    const [avatarUrl, setAvatarUrl] = useState<Record<string, string>>({})
+    
     const { sharedValue } = useShared()
 
 
 
     useEffect(() => {
-        let subscription: any = null;
 
+        let subscription: any = null
         const fetch = async () => {
-            const supabase = await createClient();
-            await supabase.realtime.setAuth();
-
-            const value = await getStatus(sharedValue);
-            if (value) {
-                const avatarMap: Record<string, string> = {};
-
-                const status = await Promise.all(
-                    value.map(async (valueV: any) => {
-                        const username = await getUsername(valueV.user_id);
-                        const url = await statusAvatar(valueV.user_id);
-                        avatarMap[valueV.user_id] = url;
-                        return {
-                            ...valueV,
-                            username,
-                        };
-                    })
-                );
-
-                setAvatarUrl(avatarMap);
-                setStatus(status);
-            }
+            const supabase = await createClient()
+            await supabase.realtime.setAuth()
+            const value = await getStatus(sharedValue)
+            setStatus(value)
+                
+            
 
             subscription = await supabase
                 .channel(`group_id_status:${sharedValue}`)
-                .on(
-                    'postgres_changes',
+                .on('postgres_changes',
                     {
                         event: 'UPDATE',
                         schema: 'public',
                         table: 'group_content',
-                        filter: `group_id=eq.${sharedValue}`,
+                        filter: `group_id=eq.${sharedValue}`
                     },
                     async (payload) => {
-                        if (payload.new?.type === 'status') {
-                            const avatarMap: Record<string, string> = {};
+                      
+                        setStatus(payload?.new?.content)
 
-                            const status = await Promise.all(
-                                payload.new.content.map(async (valueV: any) => {
-                                    const username = await getUsername(valueV.user_id);
-                                    const url = await statusAvatar(valueV.user_id);
-                                    avatarMap[valueV.user_id] = url;
-                                    return {
-                                        ...valueV,
-                                        username,
-                                    };
-                                })
-                            );
 
-                            setAvatarUrl(avatarMap);
-                            setStatus(status);
-                        }
+                        
                     }
                 )
-                .subscribe();
-        };
+                .subscribe()
+           
 
-        fetch();
-
+        }
+        fetch()
         return () => {
-            if (subscription) subscription.unsubscribe();
-        };
-    }, [sharedValue])
+           
+            if (subscription) {
+                subscription.unsubscribe();
+                
+            }
+        }
 
+
+
+
+    }, [sharedValue])
+    useEffect (() => {
+        console.log(status)
+    }, [status])
 
     return <div className="overflow-y-scroll h-[25rem] w-1/2 no-scrollbar">
         <div className="p-2 grid  grid-cols-2 auto-rows-min gap-5">
@@ -95,10 +75,10 @@ export default function Status() {
                             }}>
                             {statusV.username}</p>
                         <div className="max-w-[2.5rem] min-w-[2.5rem] min-h-[2.5rem] max-h-[2.5rem] rounded-full border-2 flex-1" style={{
-                            backgroundImage: avatarUrl?.[statusV.user_id]
-                                ? `url(${avatarUrl?.[statusV.user_id]})`
+                            backgroundImage: statusV.avatarUrl
+                                ? `url(${statusV.avatarUrl})`
                                 : 'none',
-                            backgroundColor: avatarUrl ? 'transparent' : '#FFF',
+                            backgroundColor: statusV.avatarUrl ? 'transparent' : '#FFF',
                             backgroundSize: "cover"
                         }} />
 

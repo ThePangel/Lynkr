@@ -1,8 +1,10 @@
 'use client'
-import { useRef, useEffect, useReducer, useState } from "react";
+import { useRef, useEffect, useReducer, useState, SyntheticEvent, use } from "react";
 import { useShared } from "./contentProvider";
-import { getMessages, sendMessage, getUsername, statusAvatar, avatar, checkCreator } from "./actions";
+import { getMessages, sendMessage, getUsername, statusAvatar, checkCreator, sendAI, getCurrentUsername, avatar } from "./actions";
 import { createClient } from '@/utils/supabase/client'
+import Tab from '@mui/material/Tab';
+import { TabContext, TabList, TabPanel } from '@mui/lab'
 
 type Action = {
     type: string
@@ -25,7 +27,7 @@ function tasksReducer(state: any[], action: Action[] | { type: "clear" }) {
         }
         return state;
     }
-    switch (action[0].type) {
+    switch (action[0]?.type) {
         case "update": {
             return [
                 ...state,
@@ -38,23 +40,38 @@ function tasksReducer(state: any[], action: Action[] | { type: "clear" }) {
     }
 }
 
+
 export default function Chat() {
     const formRef = useRef<HTMLFormElement>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
     const { sharedValue } = useShared()
     const [state, dispatch] = useReducer(tasksReducer, []);
-    const handleSubmit = async (e: React.FormEvent) => {
+    const [value, setValue] = useState('1');
+    const [AIchat, setChat] = useState<any[]>([])
+    const [cUsersName, setName] = useState<string[]>([])
+    const [AIuserChat, setUserChat] = useState("This is just a message telling you to initiate the conversation")
+    const handleChange = (event: SyntheticEvent, newValue: string) => {
+        setValue(newValue);
+        console.log(newValue)
+    };
+    const handleSubmitGroup = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const form = formRef.current;
         if (!form) return;
 
+        if (value === "1") {
+            let formData = new FormData(form);
 
-        let formData = new FormData(form);
+            await sendMessage(formData)
+        } else if (value === "2") {
+            const message = new FormData(form).get('message') as string
+            setUserChat(message)
+            setChat(prev => [...prev,
+                message
+            ])
 
-        await sendMessage(formData)
-
-
+        }
         form.reset()
 
     }
@@ -76,27 +93,25 @@ export default function Chat() {
 
             const value = await getMessages(sharedValue);
             if (value) {
-                let wUser: Action[] = []
-                await Promise.all(
-                    value?.map(async (valueV: any) => {
-                        const avatarUrl = await statusAvatar(valueV?.creator_id)
-                        const username = await getUsername(valueV?.creator_id);
-                        const creator = await checkCreator(valueV?.creator_id)
+                const wUser: Action[] = await Promise.all(
+                    value.map(async (valueV) => {
+                        const [avatarUrl, username, creator] = await Promise.all([
+                            statusAvatar(valueV.creator_id),
+                            getUsername(valueV.creator_id),
+                            checkCreator(valueV.creator_id),
+                        ]);
 
-                        wUser.push({
+                        return {
                             type: "update",
-                            group_id: valueV?.group_id,
-                            creator_id: valueV?.creator_id,
-                            created_at: valueV?.created_at,
-                            content: valueV?.content,
+                            group_id: valueV.group_id,
+                            creator_id: valueV.creator_id,
+                            created_at: valueV.created_at,
+                            content: valueV.content,
                             username: username,
                             avatarUrl: avatarUrl,
-                            isCreator: creator
-                        })
-                        
-
+                            isCreator: creator,
+                        };
                     })
-                    
                 );
                 handleGetUpdate(wUser);
 
@@ -161,50 +176,131 @@ export default function Chat() {
                 behavior: 'smooth'
             });
         }
-        
-    }, [state]);
+
+    }, [state, value, AIchat]);
+    useEffect(() => {
+        const ai = async () => {
+            const message = await sendAI(`Past conversation: ${AIchat.join(";")}, lastest request: ${AIuserChat}, current time :${new Date().toLocaleString()}`)
+            setChat(prev => [...prev,
+                message
+            ])
+        }
+        ai()
+        console.log(AIuserChat)
+        console.log(AIchat)
+    }, [AIuserChat])
+
+    useEffect(() => {
+        const name = async () => {
+            const name = await getCurrentUsername()
+            const url = await avatar()
+            setName(prev => [
+                ...prev,
+                name,
+                url
+            ])
+
+        }
+        name()
+
+    }, [])
 
     return <div className="flex flex-col-reverse h-[25rem] w-1/2 rounded-lg border-2">
-        <div className="h-[3.5rem] bg-slate-50 "> <form onSubmit={handleSubmit} ref={formRef}>
-            <input id="message" name="message" type="text" required className='mt-3 mx-3 rounded-md bg-black border-1 w-[97%] h-[2rem] text-white  font-mono' />
-            <input type="hidden" name="groupId" value={sharedValue} />
-            <button type="submit" hidden />
-        </form> </div>
-        <div ref={scrollRef} className="h-[21.5rem] overflow-y-auto">
-            <div className={`p-2 flex flex-col gap-2 `}>
-                {state?.map((message, index) => {
-                    const previous = state[index - 1]
-                    return (
-                        <div key={message.id} id={message.id} className={`flex ${message.isCreator ? 'justify-start ml-full flex-row-reverse' : 'justify-start mr-full flex-row'}    `}
-                            style={{
-                                filter: 'drop-shadow(0 0 5px rgba(255, 255, 255, 0.4))'
-                            }}>
-                            <div className={` flex flex-col justify-items-center items-center ${previous?.creator_id === message.creator_id ? 'invisible h-0' : 'mt-7'} `}>
-                                <p className=" mb-2 inline-block font-mono text-white"
+        <TabContext value={value}>
+            <div className="h-[3.5rem] bg-slate-50 "> <form onSubmit={handleSubmitGroup} ref={formRef}>
+                <input id="message" name="message" type="text" required className='mt-3 mx-3 rounded-md bg-black border-1 w-[97%] h-[2rem] text-white  font-mono' />
+                <input type="hidden" name="groupId" value={sharedValue} />
+                <button type="submit" hidden />
+            </form> </div>
+
+            <div ref={scrollRef} className="h-[21.5rem] overflow-y-auto no-scrollbar">
+
+                <TabPanel value="1">
+                    <div className={`p-2 flex flex-col gap-2 `} tabIndex={0}>
+                        {state?.map((message, index) => {
+                            const previous = state[index - 1]
+                            return (
+                                <div key={message.id} id={message.id} className={`flex ${message.isCreator ? 'justify-start ml-full flex-row-reverse' : 'justify-start mr-full flex-row'}    `}
                                     style={{
                                         filter: 'drop-shadow(0 0 5px rgba(255, 255, 255, 0.4))'
                                     }}>
-                                    {message.username}</p>
-                                <div className="max-w-[2.5rem] min-w-[2.5rem] min-h-[2.5rem] max-h-[2.5rem] rounded-full border-2 flex-1" style={{
-                                    backgroundImage: message.avatarUrl
-                                        ? `url(${message.avatarUrl})`
-                                        : 'none',
-                                    backgroundColor: message.avatarUrl ? 'transparent' : '#FFF',
-                                    backgroundSize: "cover"
-                                }} />
-                            </div>
-                            <div className={`self-end  shrink  rounded-r-lg rounded-tl-lg bg-white min-h-[2rem] min-w-5 max-w-[50%] inline-block mr-1`} style={{
-                                filter: 'drop-shadow(0 0 2px rgba(255, 255, 255, 0.4))'
-                            }}><h1 className="m-1 text-xl text-black font-mono inline-block">{message.content}</h1></div>
-                        </div>
-                    )
+                                    <div className={` flex flex-col justify-items-center items-center ${previous?.creator_id === message.creator_id ? 'invisible h-0' : 'mt-7'} `}>
+                                        <p className=" mb-2 inline-block font-mono text-white"
+                                            style={{
+                                                filter: 'drop-shadow(0 0 5px rgba(255, 255, 255, 0.4))'
+                                            }}>
+                                            {message.username}</p>
+                                        <div className="max-w-[2.5rem] min-w-[2.5rem] min-h-[2.5rem] max-h-[2.5rem] rounded-full border-2 flex-1" style={{
+                                            backgroundImage: message.avatarUrl
+                                                ? `url(${message.avatarUrl})`
+                                                : 'none',
+                                            backgroundColor: message.avatarUrl ? 'transparent' : '#FFF',
+                                            backgroundSize: "cover"
+                                        }} />
+                                    </div>
+                                    <div className={`self-end  shrink  rounded-r-lg rounded-tl-lg bg-white min-h-[2rem] min-w-5 max-w-[50%] inline-block mr-1`} style={{
+                                        filter: 'drop-shadow(0 0 2px rgba(255, 255, 255, 0.4))'
+                                    }}><h1 className="m-1 text-xl text-black font-mono inline-block">{message.content}</h1></div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </TabPanel>
+                <TabPanel value="2">
+                    <div className={`p-2 flex flex-col gap-2 `}>
+                        {AIchat?.map((message, index) => {
+
+                            let user: boolean = false
+                            let name: string = "HackClubAI"
+                            let url: string = "https://assets.hackclub.com/icon-square.png"
+                            if (index % 2 !== 0) {
+                                user = true
+                                name = cUsersName[0]
+                                url = cUsersName[1]
+                            }
+                            return (
+                                <div key={message} id={message} className={`flex ${user ? 'justify-start ml-full flex-row-reverse' : 'justify-start mr-full flex-row'}    `}
+                                    style={{
+                                        filter: 'drop-shadow(0 0 5px rgba(255, 255, 255, 0.4))'
+                                    }}>
+                                    <div className={` flex flex-col justify-items-center items-center`}>
+                                        <p className=" mb-2 mr-2 inline-block font-mono text-white"
+                                            style={{
+                                                filter: 'drop-shadow(0 0 5px rgba(255, 255, 255, 0.4))'
+                                            }}>
+                                            {name}</p>
+                                        <div className="max-w-[2.5rem] min-w-[2.5rem] min-h-[2.5rem] max-h-[2.5rem] rounded-full border-2 flex-1" style={{
+                                            backgroundImage: url
+                                                ? `url(${url})`
+                                                : 'none',
+                                            backgroundColor: url ? 'transparent' : '#FFF',
+                                            backgroundSize: "cover"
+                                        }} />
+                                    </div>
+                                    <div className={`self-end  shrink  rounded-r-lg rounded-tl-lg bg-white min-h-[2rem] min-w-5 max-w-[50%] inline-block mr-1`} style={{
+                                        filter: 'drop-shadow(0 0 2px rgba(255, 255, 255, 0.4))'
+                                    }}><h1 className="m-1 text-xl text-black font-mono inline-block">{message}</h1></div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </TabPanel>
 
 
-                })}
             </div>
-
-        </div>
-
-
+            <TabList className="bg-white" onChange={handleChange}>
+                <Tab sx={{
+                    color: 'black',
+                    '&.Mui-selected': {
+                        color: 'grey',
+                    },
+                }} label="Group Chat" value="1" />
+                <Tab sx={{
+                    color: 'black',
+                    '&.Mui-selected': {
+                        color: 'grey',
+                    },
+                }} label="AI" value="2" /></TabList>
+        </TabContext>
     </div>
 }       

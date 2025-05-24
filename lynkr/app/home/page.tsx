@@ -43,7 +43,7 @@ export default function Home() {
         </div>
 
         <Activities />
-        <div className="flex flex-row justify-items-center items-baseline">
+        <div className="inline-flex flex-row justify-items-center items-baseline">
           <h1 className="p-3  text-white font-mono text-5xl font-bold">Status</h1>
           <NewStatusModal />
         </div>
