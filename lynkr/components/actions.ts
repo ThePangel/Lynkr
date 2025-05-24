@@ -584,7 +584,7 @@ export async function getMessages(id: string) {
     console.log(error)
     return redirect('/error')
   }
-
+  
   return data
 }
 

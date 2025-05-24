@@ -13,82 +13,71 @@ export default function Status() {
 
 
     useEffect(() => {
+        let subscription: any = null;
 
-        let subscription: any = null
         const fetch = async () => {
-            const supabase = await createClient()
-            await supabase.realtime.setAuth()
-            const value = await getStatus(sharedValue)
+            const supabase = await createClient();
+            await supabase.realtime.setAuth();
+
+            const value = await getStatus(sharedValue);
             if (value) {
-                const status = await Promise.all(value?.map(async (valueV: any) => {
+                const avatarMap: Record<string, string> = {};
 
-                    const username = await getUsername(valueV?.user_id)
-                    const url = await statusAvatar(valueV?.user_id)
+                const status = await Promise.all(
+                    value.map(async (valueV: any) => {
+                        const username = await getUsername(valueV.user_id);
+                        const url = await statusAvatar(valueV.user_id);
+                        avatarMap[valueV.user_id] = url;
+                        return {
+                            ...valueV,
+                            username,
+                        };
+                    })
+                );
 
-                    setAvatarUrl(prev => ({
-                        ...prev,
-                        [valueV?.user_id]: url
-                    }));
-                    return {
-                        ...valueV,
-                        username
-                    }
-
-                }))
-                setStatus(status)
-                
+                setAvatarUrl(avatarMap);
+                setStatus(status);
             }
 
             subscription = await supabase
                 .channel(`group_id_status:${sharedValue}`)
-                .on('postgres_changes',
+                .on(
+                    'postgres_changes',
                     {
                         event: 'UPDATE',
                         schema: 'public',
                         table: 'group_content',
-                        filter: `group_id=eq.${sharedValue}`
+                        filter: `group_id=eq.${sharedValue}`,
                     },
                     async (payload) => {
-                      
-                        if (payload.new?.type === "status") {
-                            
-                            const status = await Promise.all(payload.new?.content?.map(async (valueV: any) => {
+                        if (payload.new?.type === 'status') {
+                            const avatarMap: Record<string, string> = {};
 
-                                const username = await getUsername(valueV?.user_id)
-                                const url = await statusAvatar(valueV?.user_id)
+                            const status = await Promise.all(
+                                payload.new.content.map(async (valueV: any) => {
+                                    const username = await getUsername(valueV.user_id);
+                                    const url = await statusAvatar(valueV.user_id);
+                                    avatarMap[valueV.user_id] = url;
+                                    return {
+                                        ...valueV,
+                                        username,
+                                    };
+                                })
+                            );
 
-                                setAvatarUrl(prev => ({
-                                    ...prev,
-                                    [valueV?.user_id]: url
-                                }));
-                                return {
-                                    ...valueV,
-                                    username
-                                }
-
-                            }))
-                            setStatus(status)
-
-
+                            setAvatarUrl(avatarMap);
+                            setStatus(status);
                         }
                     }
                 )
-                .subscribe()
-           
+                .subscribe();
+        };
 
-        }
-        fetch()
+        fetch();
+
         return () => {
-           
-            if (subscription) {
-                subscription.unsubscribe();
-                
-            }
-        }
-
-
-
-
+            if (subscription) subscription.unsubscribe();
+        };
     }, [sharedValue])
 
 
