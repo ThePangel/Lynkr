@@ -40,7 +40,7 @@ export default function NewStatusModal() {
             aria-describedby="Used-for-creating-groups " 
         >
             <div className="flex items-center justify-center h-screen w-screen pointer-events-none">
-                    <div className='flex flex-col items-center justify-start w-[30rem] h-[23rem] rounded-xl pointer-events-auto' style={{
+                    <div className='flex flex-col items-center justify-start w-[30rem] h-[23    rem] rounded-xl pointer-events-auto' style={{
                     backgroundColor: '#161616',
                     filter: 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.4))'
                 }}>

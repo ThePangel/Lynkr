@@ -1,7 +1,7 @@
 'use client'
 import { useRef, useEffect, useReducer, useState, SyntheticEvent, use } from "react";
 import { useShared } from "./contentProvider";
-import { getMessages, sendMessage, getUsername, statusAvatar, checkCreator, sendAI, getCurrentUsername, avatar } from "./actions";
+import { getMessages, sendMessage, getUsername, statusAvatar, getID, sendAI, getCurrentUsername, avatar } from "./actions";
 import { createClient } from '@/utils/supabase/client'
 import Tab from '@mui/material/Tab';
 import { TabContext, TabList, TabPanel } from '@mui/lab'
@@ -93,23 +93,21 @@ export default function Chat() {
 
             const value = await getMessages(sharedValue);
             if (value) {
+                const creator = await getID()
+                let isCreator: boolean
                 const wUser: Action[] = await Promise.all(
                     value.map(async (valueV) => {
-                        const [avatarUrl, username, creator] = await Promise.all([
-                            statusAvatar(valueV.creator_id),
-                            getUsername(valueV.creator_id),
-                            checkCreator(valueV.creator_id),
-                        ]);
-
+                        if (creator === valueV.creator_id) isCreator = true
+                        else isCreator = false
                         return {
                             type: "update",
                             group_id: valueV.group_id,
                             creator_id: valueV.creator_id,
                             created_at: valueV.created_at,
                             content: valueV.content,
-                            username: username,
-                            avatarUrl: avatarUrl,
-                            isCreator: creator,
+                            username: valueV.username,
+                            avatarUrl: valueV.avatarurl,
+                            isCreator: isCreator,
                         };
                     })
                 );
@@ -129,11 +127,11 @@ export default function Chat() {
                     },
                     async (payload) => {
                         if (typeof payload.new?.content === "string") {
+                            const creator = await getID()
+                            let isCreator: boolean
 
-
-                            const avatarUrl = await statusAvatar(payload.new?.creator_id)
-                            const username = await getUsername(payload.new?.creator_id)
-                            const creator = await checkCreator(payload.new?.creator_id)
+                            if (creator === payload.new?.creator_id) isCreator = true
+                            else isCreator = false
 
                             const wUser: Action[] = [{
                                 type: "update",
@@ -141,9 +139,9 @@ export default function Chat() {
                                 creator_id: payload.new.creator_id,
                                 created_at: payload.new.created_at,
                                 content: payload.new.content,
-                                username: username,
-                                avatarUrl: avatarUrl,
-                                isCreator: creator
+                                username: payload.new.username,
+                                avatarUrl: payload.new.avatarurl,
+                                isCreator: isCreator,
                             }]
                             handleGetUpdate(wUser);
 

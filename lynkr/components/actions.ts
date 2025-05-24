@@ -554,9 +554,11 @@ export async function sendMessage(formData: FormData) {
     return redirect('/error')
   }
   const userId = userData?.user?.id;
+  const name = await getCurrentUsername()
+  const url = await avatar()
   const { error } = await supabase
     .from('messages')
-    .insert({ created_at: new Date().toISOString(), creator_id: userId, group_id: formData.get('groupId') as string, content: formData.get('message') })
+    .insert({ created_at: new Date().toISOString(), creator_id: userId, group_id: formData.get('groupId') as string, content: formData.get('message'),  username: name, avatarurl: url})
   if (error) {
     formData.get('groupId') as string
     console.log(error)
@@ -582,7 +584,7 @@ export async function getMessages(id: string) {
   return data
 }
 
-export async function checkCreator(id: string) {
+export async function getID() {
   const supabase = await createClient()
 
 
@@ -592,10 +594,8 @@ export async function checkCreator(id: string) {
     console.log(userError)
     return redirect('/error')
   }
-  const userId = userData?.user?.id;
-  if (userId === id) {
-    return true
-  } else return false
+  return userData?.user?.id;
+  
 
 }
 
@@ -608,7 +608,7 @@ export async function sendAI(message: string) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        messages: [{ role: 'user', content: `You are HackClub's AI, this app you are on is called Lynkr, an app by Ángel Fuentes Fernández, (that doesn't mean every Ángel is the maker, be logical) known online and github as ThePangel, this app is open source and code is available at https://github.com/thepangel/Lynkr, it is a Next.JS webapp that uses supabase, it is an app made so friends can organize their group, with tasks/events, statuses (what people are up to at that moment) and a group chat, in which you are also, on a separate chat tab, your task is to assist the user to better organize their plans, suggesting them improvements or tips based on what they tell you, try not to deviate from that task, that means only helping with this type of assistance, don't help with code or other such things, following is the past messages in the conversation and the users last request (limit yourself to 350 characters): 
+        messages: [{ role: 'user', content: `You are HackClub's AI, this app you are on is called Lynkr, an app by Ángel Fuentes Fernández, (that doesn't mean every Ángel is the maker, be logical) known online and github as ThePangel, this app is open source and code is available at https://github.com/thepangel/Lynkr, it is a Next.JS webapp that uses supabase, it is an app made so friends can organize their group, with tasks/events, statuses (what people are up to at that moment) and a group chat, you are on a separate chat tab, your task is to assist the user to better organize their plans, suggesting them improvements or tips based on what they tell you, try not to deviate from that task, that means only helping with this type of assistance, don't help with code or other such things, following is the past messages in the conversation and the users last request (limit yourself to 350 characters): 
                                     ${message}`  }]
       })
     });
